@@ -1,0 +1,23 @@
+<template>
+    <div lwc:if={debugMode}>
+      Rendering in Debug Mode
+    </div><br/>
+    <div style="margin-top:20px;" lwc:if={debugMode}><!-- Render if in Debug Mode Only-->
+        
+        <lightning-tabset 
+          active-tab-value="Damages"
+          variant="scoped">
+          <lightning-tab label="Damages" id="Damages">
+            <div>
+                <c-base-table-wrapper-l-w-c 
+                    tabledata={availableDamageData}
+                    columns={damageColumns} 
+                    title="Available Damages">
+                </c-base-table-wrapper-l-w-c>
+            </div>
+          </lightning-tab>
+          
+        </lightning-tabset>
+    </div>
+
+</template>

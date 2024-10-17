@@ -1,0 +1,5 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasRecordId">
+	<aura:attribute name="displayURL" type="String"/>
+    <aura:attribute name="height" type="String" default="800" />
+    <iframe  height="{!v.height}" width="100%" src="{!v.displayURL}" style="overflow:scroll !important; -webkit-overflow-scrolling:touch !important;"/>
+</aura:component>

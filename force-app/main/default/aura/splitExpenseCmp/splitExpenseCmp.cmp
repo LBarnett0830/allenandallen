@@ -1,0 +1,500 @@
+<aura:component controller="splitExpenseController"  implements="force:lightningQuickAction,force:hasRecordId,force:appHostable"  >
+<!-- 
+Author: Cmentor/ Sampath Suranji
+this component is used in Split Expense Quick Action/ Button in Expense 
+-->
+    
+    <aura:html tag="style">
+        .slds-modal__container{
+        /*height : auto;*/
+        width: 90%;
+        max-width: 1500px;
+        }
+        .slds-modal__header{
+        background: #337AB7 !important; color: #fff;
+        }
+        .modal-body{
+        height : 100% !important;
+        max-height: 600px !important;
+        overflow:hidden;
+        }
+         .slds-modal__content{
+        height : auto !important;
+        max-height: unset !important;
+        }
+        .slds-modal__footer{
+        display: none;
+        }
+        .confirmation{
+        display: block;
+        }
+        
+        .tblTH{
+        padding-left: 7px !important;
+        }
+        .tblBody{
+        height:280px;
+        }
+        /* Extra small devices (phones, 600px and down) */
+        @media only screen and (max-width: 600px) {
+        .tblBody{
+        height:300px;
+        }
+        }
+        
+        /* Small devices (portrait tablets and large phones, 600px and up) */
+        @media only screen and (min-width: 600px) {
+        .tblBody{
+        height:310px;
+        }
+        }
+        
+        /* Medium devices (landscape tablets, 768px and up) */
+        @media only screen and (min-width: 768px) {
+        .tblBody{
+        height:320px;
+        }
+        }
+        
+        /* Large devices (laptops/desktops, 992px and up) */
+        @media only screen and (min-width: 992px) {
+        .tblBody{
+        height:330px;
+        }
+        }
+        @media only screen and (min-width: 2200px) {
+        .tblBody{
+        height:350px;
+        }
+        .modal-body{
+        height : 100% !important;
+        max-height: 700px !important;
+        overflow:hidden;
+        }
+        }
+    </aura:html> 
+    
+    
+    <aura:attribute name="objExpenseWrapper" type="splitExpenseWrapper"/>
+    <aura:attribute name="balanceAmount" type="decimal"/>
+    <aura:attribute name="showError" type="boolean"/>
+    <aura:attribute name="showExpenses" type="boolean" default="true"/>
+    <aura:attribute name="showSuccess" type="boolean"/>
+    <aura:attribute name="showSpinner" type="boolean"/>
+    <aura:attribute name="showConfirm" type="boolean"/>
+    <aura:attribute name="disableInput" type="boolean" default="false"/>
+    <aura:attribute name="showSave" type="boolean" default="false"/>
+    <aura:attribute name="showSubmit" type="boolean" default="false"/>
+    <aura:attribute name="isClassic" type="boolean" default="false"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="recordUrlBase" type="String"/>
+    <aura:attribute name="recordUrlBaseEnd" type="String"/>
+    <aura:attribute name="matterId" type="String"/>
+    <aura:attribute name="matterName" type="String"/>
+    <aura:attribute name="matterIds" type="String[]"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <!-- <aura:handler name="change" value="{!v.objExpenseWrapper.remainingAmount}" action="{!c.handleAmountOnChange}"/>-->
+    
+    
+    <div  id="mainDiv" class="slds-grid slds-wrap">
+        
+        <div class="slds-col slds-large-size_1-of-1">  
+            
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Expense</label>
+                        <div class="slds-form-element__control">
+                            {!v.objExpenseWrapper.objExpense.Name}
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                    
+                    
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;"> Amount After Reduction</label>
+                        <div class="slds-form-element__control">
+                            <ui:outputCurrency value="{!v.objExpenseWrapper.objExpense.Amount_after_Reductions__c}"/>
+                        </div>
+                        
+                    </div>
+                    
+                    
+                </div>
+                
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Matter</label>
+                        <div class="slds-form-element__control">
+                            {!v.objExpenseWrapper.objExpense.litify_pm__Matter__r.Name}
+                        </div>
+                        <div class="slds-form-element__control" >
+                            {!v.objExpenseWrapper.objExpense.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Expense Type</label>
+                        <div class="slds-form-element__control">
+                            {!v.objExpenseWrapper.objExpense.litify_pm__ExpenseType2__r.Name}
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                
+                
+            </div>  
+            
+            <div style="margin-top:10px;" >
+                
+                <div class="slds-col slds-large-size_1-of-1">  
+                    
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Vendor</label>
+                                <div class="slds-form-element__control">
+                                    {!v.objExpenseWrapper.objExpense.Vendor__r.Name}
+                                    
+                                </div>
+                            </div>
+                        </div>                
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Date</label>
+                                <div class="slds-form-element__control">
+                                    {!v.objExpenseWrapper.objExpense.litify_pm__Date__c}
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;"> Amount left to Split </label>
+                                <div class="slds-form-element__control">
+                                    <ui:outputCurrency value="{!v.objExpenseWrapper.amountLeft}"/>
+                                    
+                                </div>                                        
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Split Lines</label>
+                                <div class="slds-form-element__control">
+                                    {!v.objExpenseWrapper.listInvoiceLines.length}
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+        
+        <div class="slds-col slds-large-size_1-of-1" style="background-color: #ffffff;"> 
+            <div class="slds-grid slds-wrap" html-autocomplete="off">
+                
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control" >
+                            <c:lookupCmp 
+                                         objectAPIName="litify_pm__Matter__c" 
+                                         label="Matter"
+                                         returnFields="['Name','litify_pm__Display_Name__c']" 
+                                         queryFields="['Name','litify_pm__Display_Name__c']"
+                                         selectedId="{!v.matterId}"
+                                         showAddNew="false"
+                                         filter =""
+                                         selectedName="{!v.matterName}"
+                                         disabled="{!v.disableInput}"
+                                         />  
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                    <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            
+                            <lightning:input type="number" autocomplete="off" aura:id="CRAmount"  formatter="Currency" step="0.01" value="{!v.objExpenseWrapper.objInvoiceLine.amount}"  disabled="{!v.disableInput}" label="Amount" maxlength="10"/> 
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-1 slds-medium-size--1-of-3 ">
+                    <div style="margin-top: 40px;">
+                        <button class="slds-button slds-button_brand" onclick="{!c.handleAddInvoiceLine}" disabled="{!v.disableInput}" >Add</button>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>                            
+            
+        </div>
+        
+        
+        <br/>
+        <div class="slds-table--header-fixed_container tblBody" >
+            <div class="slds-scrollable_y" style="height:100%;">
+                
+                <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table--header-fixed" role="grid" style="table-layout: fixed">
+                    <thead>
+                        <tr class="slds-line-height_reset" >
+                            
+                            <th class="tblTH" scope="col" style="padding-left:20px !important;">
+                                <div class="slds-truncate slds-cell-fixed">
+                                    <span class="slds-truncate" title="Name"> Matter</span>
+                                    
+                                </div>
+                            </th>
+                            <th class="tblTH" scope="col" style="padding-left:25px !important;">
+                                <div class="slds-truncate slds-cell-fixed">
+                                    <span class="slds-truncate" title="Name"> Amount</span>
+                                    
+                                </div>
+                            </th>
+                            
+                            
+                            <th class="slds-text-align_right " scope="col" style="width:40px; padding-right:5px">
+                                
+                            </th>   
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <aura:iteration items="{!v.objExpenseWrapper.listInvoiceLines}" var="cr" indexVar="index">
+                            
+                            <tr aria-selected="false" class="slds-hint-parent">
+                                <td role="gridcell" style="padding-left:20px !important;">
+                                    <div class="slds-truncate" title="Matter">
+                                        <a href="{!v.recordUrlBase+ cr.MatterId + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!cr.matterName}</a>
+                                        
+                                    </div>
+                                </td>
+                                
+                                <th scope="row"  style="padding-left:25px !important;">
+                                    <div class="slds-truncate" title="Amount">
+                                        <ui:outputCurrency value="{!cr.amount}"/>
+                                    </div>
+                                </th>                                       
+                                
+                                
+                                <td class="slds-text-align_right" role="gridcell" >
+                                    <div class="slds-checkbox">
+                                        <lightning:buttonIcon disabled="{!v.disableInput}" iconName="utility:delete"  value="{!index}"  variant="brand" alternativeText="Delete"   size="small" title="Delete" onclick="{!c.handleDeleteInvoiceLine}"/>
+                                        <!--<lightning:buttonIcon disabled="{!v.disableInput}" iconName="utility:settings" variant="bare" alternativeText="Settings" iconClass="dark"/>-->
+                                        
+                                    </div>
+                                    
+                                </td>
+                                
+                            </tr>
+                        </aura:iteration>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        
+        
+    </div>
+    
+    
+    <aura:if isTrue="{!v.showSpinner}">
+        <div id="divLoading" >
+            <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                <div class="slds-spinner_container slds-is-fixed">
+                    <div role="status" class="slds-spinner slds-spinner_medium">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <lightning:spinner aura:id="spinner" class="slds-hide" variant="brand" size="large"/>
+    
+    <footer class=" slds-docked-form-footer " style="">
+        <button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}"  >Cancel</button>
+        <button class="slds-button slds-button_brand" onclick="{!c.showConfirmation}"  disabled="{!!v.showSubmit}">Submit</button>
+        
+    </footer>
+    
+    
+    <aura:if isTrue="{!v.showConfirm}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to save</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div class="slds-col slds-large-size_1-of-1">  
+                        
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Expense</label>
+                                    <div class="slds-form-element__control">
+                                        {!v.objExpenseWrapper.objExpense.Name}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                
+                                
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;"> Amount</label>
+                                    <div class="slds-form-element__control">
+                                        <ui:outputCurrency value="{!v.objExpenseWrapper.objExpense.Amount_after_Reductions__c}"/>
+                                    </div>
+                                    
+                                </div>
+                                
+                                
+                            </div>
+                            
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Matter</label>
+                                    <div class="slds-form-element__control">
+                                        {!v.objExpenseWrapper.objExpense.litify_pm__Matter__r.Name}
+                                    </div>
+                                    <div class="slds-form-element__control" >
+                                        {!v.objExpenseWrapper.objExpense.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Expense Type</label>
+                                    <div class="slds-form-element__control">
+                                        {!v.objExpenseWrapper.objExpense.litify_pm__ExpenseType2__r.Name}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            
+                            
+                        </div>  
+                        
+                        <div style="margin-top:10px;" >
+                            
+                            <div class="slds-col slds-large-size_1-of-1">  
+                                
+                                <div class="slds-grid slds-wrap">
+                                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Vendor</label>
+                                            <div class="slds-form-element__control">
+                                                {!v.objExpenseWrapper.objExpense.Vendor__r.Name}
+                                                
+                                            </div>
+                                        </div>
+                                    </div>                
+                                    
+                                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Date</label>
+                                            <div class="slds-form-element__control">
+                                                {!v.objExpenseWrapper.objExpense.litify_pm__Date__c}
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;"> Amount left to Split </label>
+                                            <div class="slds-form-element__control">
+                                                <ui:outputCurrency value="{!v.objExpenseWrapper.amountLeft}"/>
+                                                
+                                            </div>                                        
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4 slds-p-around--medium">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Split Lines</label>
+                                            <div class="slds-form-element__control">
+                                                {!v.objExpenseWrapper.listInvoiceLines.length}
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                    <center><p>Do you want to save?
+                        </p>
+                    </center> 
+                    <br/>
+                    <footer class="slds-modal__footer confirmation" style="text-align:center;">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                        <button class="slds-button slds-button_brand" onclick="{!c.handleSave}">Yes</button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showConfirmToSaveAndPrint}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to save and print</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <center><p>Do you want to save the changes and Print?
+                        </p>
+                    </center> 
+                    <br/>
+                    <footer class="slds-modal__footer confirmation" style="text-align:center;">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                        <button class="slds-button slds-button_brand" onclick="{!c.handleSaveAndPrint}">Yes</button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    
+    
+</aura:component>

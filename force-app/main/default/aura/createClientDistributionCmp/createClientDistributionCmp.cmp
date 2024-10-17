@@ -1,0 +1,102 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" controller="createClientDistributionController" >
+    
+   <aura:html tag="style">
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        }     
+        
+        .slds-modal__content{
+        overflow-y:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-modal__header{
+        background: #337AB7 !important; color: #fff;
+        }
+        
+        
+        
+    </aura:html>
+    
+    
+    <aura:attribute name="showSpinner" type="boolean" />
+    <aura:attribute name="showConfirm" type="boolean" />
+    <aura:attribute name="showConfirmTrustBalance" type="boolean" />
+    <aura:attribute name="confirmTrustBalance" type="boolean" default="false"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:if isTrue="{!v.showSpinner}">
+        <div id="divLoading" >
+            <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                <div class="slds-spinner_container slds-is-fixed">
+                    <div role="status" class="slds-spinner slds-spinner_medium">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showConfirm}">
+        <div class="modal-header slds-modal__header slds-size_1-of-1">
+            <span style="font-size: 14pt;">Create Client Distribution</span>
+        </div>
+        
+        <form class="slds-form–stacked">
+            <br/>
+            <center><p>Are you sure?
+                </p>
+                <br/>
+            </center>
+        </form>
+        
+        
+        <footer>
+            <div class="modal-footer slds-modal__footer slds-size_1-of-1" >
+                <center>
+                    <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                    <button class="slds-button slds-button_brand" onclick="{!c.processCreatePayable}">Yes</button>
+                </center>
+            </div>  
+        </footer>
+        
+        
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showConfirmTrustBalance}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate"> Insufficient Trust Balance</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="max-height:160px !important;">
+                    
+                    <center><p>
+                        
+                        Do you want to disregard insufficient trust balance and continue with Create Client Distribution? 
+                        </p>
+                    </center> 
+                    <br/>
+                    <footer class="slds-modal__footer confirmation">
+                        <center>
+                            <button class="slds-button slds-button_brand " onclick="{!c.hideConfirmation}">No</button>
+                            <button class="slds-button slds-button_neutral" onclick="{!c.processWithInsufficientTrust}">Yes</button>
+                        </center>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    
+</aura:component>

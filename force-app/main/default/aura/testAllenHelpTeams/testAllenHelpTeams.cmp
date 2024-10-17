@@ -1,0 +1,5 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global" >
+    <aura:attribute name="urlTeamsHelp" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <iframe  height="600" width="100%" src="{!v.urlTeamsHelp}" style="overflow:scroll !important; -webkit-overflow-scrolling:touch !important;"/>
+</aura:component>

@@ -1,0 +1,15 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasRecordId" >
+	<aura:attribute name="recordId" type="Id"/>	
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:attribute name="urlRough" type="String"/>	
+    <aura:attribute name="urlFinal" type="String"/>	
+    <lightning:navigation aura:id="navService"/>
+    <lightning:tabset selectedTabId="one">
+        <lightning:tab label="Rough Preview" id="one">
+           <iframe  height="600" width="100%" src="{!v.urlRough}" style="overflow:scroll !important; -webkit-overflow-scrolling:touch !important;"/>
+        </lightning:tab>
+        <lightning:tab label="Final Preview" id="two">
+            <iframe  height="600" width="100%" src="{!v.urlFinal}" style="overflow:scroll !important; -webkit-overflow-scrolling:touch !important;"/>
+        </lightning:tab>
+    </lightning:tabset>
+</aura:component>

@@ -1,0 +1,173 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" controller="clientCostRefundController" >
+    <aura:html tag="style">
+        .slds-modal__container{
+        width: 100% !important;
+        max-width: 50rem !important;
+        padding: 0rem !important;
+        }
+          .slds-modal__content{
+        height : auto !important;
+        max-height: unset !important;
+        }
+        .slds-modal__header{
+        background: #337AB7 !important;
+        color: #fff;
+        }
+        
+    </aura:html>
+    
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="expenseId" type="string"/>
+    <aura:attribute name="expenseName" type="string"/>
+    <aura:attribute name="expenseFilter" type="string"/>
+    <aura:attribute name="amount" type="decimal"/>
+    <aura:attribute name="comment" type="string"/>
+    <aura:attribute name="showSaveConfirm" type="boolean"/> 
+    <aura:attribute name="showSpinner" type="boolean"/>
+    <aura:attribute name="objExpense" type="litify_pm__Expense__c"/>
+    
+    <aura:handler name = "init" value = "{!this}" action = "{!c.doInit}"/>
+    <aura:handler name = "change" value = "{!v.expenseId}" action = "{!c.bindExpenseDetails}"/>
+    
+    <div class="slds-modal slds-fade-in-open slds-modal--large" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header">
+                <h2 class="slds-modal__title slds-hyphenate" >ATO Void/Refund</h2>
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.handleCancel}">
+                    
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+            </header>
+            
+            <div class="slds-modal__content slds-p-around_medium" >
+                <div class="slds-col slds-large-size_1-of-1" style="background-color: #ffffff;"> 
+                    <div class="slds-grid slds-wrap">  
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-p-around_medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c:lookupCmp 
+                                                 objectAPIName="litify_pm__Expense__c" 
+                                                 label="Expense"
+                                                 returnFields="['Name']" 
+                                                 queryFields="['Name']"
+                                                 selectedId="{!v.expenseId}"
+                                                 showAddNew="false"
+                                                 filter ="{!v.expenseFilter}"
+                                                 selectedName="{!v.expenseName}"
+                                                 disabled="{!v.disableInput}"
+                                                 
+                                                 /> 
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-p-around_medium">  
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Expense Amount</label>
+                                <div class="slds-form-element__control">
+                                    <ui:outputcurrency   value="{!v.objExpense.Amount_after_Reductions__c}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-p-around_medium">                            
+                            <lightning:input autocomplete="off" type="number" label="Void/Refund Amount" required="true"  maxlength="10" formatter="Currency" step="0.01" value="{!v.amount}" />
+                        </div>                       
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-p-around_medium">                            
+                            <lightning:input autocomplete="off" type="text" label="Comment"   maxlength="255"  value="{!v.comment}" />
+                        </div>  
+                        
+                    </div>
+                    <br/> <br/>  <br/> <br/>
+                </div>
+            </div>
+            <footer class="slds-modal__footer">
+                <center>
+                    <button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}">Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick="{!c.showConfirmation}">Submit</button>
+                </center>
+            </footer>
+        </div>
+        
+        <aura:if isTrue="{!v.showSpinner}">
+            <div id="divLoading" >
+                <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                    <div class="slds-spinner_container slds-is-fixed">
+                        <div role="status" class="slds-spinner slds-spinner_medium">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showSaveConfirm}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideSaveConfirm}">
+                            X
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to save</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        
+                        
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-3 slds-p-around--medium">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;"> Expense</label>
+                                    <div class="slds-form-element__control">
+                                        <ui:outputText   value="{!v.expenseName}"  /> 
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-3 slds-p-around--medium">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Expense Amount</label>
+                                    <div class="slds-form-element__control">
+                                        <ui:outputCurrency   value="{!v.objExpense.litify_pm__Amount__c}"  /> 
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-3 slds-p-around--medium">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Void/Refund Amount</label>
+                                    <div class="slds-form-element__control">
+                                        <ui:outputCurrency   value="{!v.amount}"  /> 
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-1 slds-p-around--medium">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Refund Amount</label>
+                                    <div class="slds-form-element__control">
+                                        <ui:outputText   value="{!v.comment}"  /> 
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <center><p><b>Do you want to proceed?</b>
+                            </p>
+                        </center> 
+                        <br/>
+                        <footer class="slds-modal__footer confirmationFooter">
+                            <button class="slds-button slds-button_neutral" onclick="{!c.hideSaveConfirm}">No</button>
+                            <button class="slds-button slds-button_brand" onclick="{!c.handleSave}">Yes</button>
+                            
+                        </footer>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+    </div>
+    
+    
+</aura:component>

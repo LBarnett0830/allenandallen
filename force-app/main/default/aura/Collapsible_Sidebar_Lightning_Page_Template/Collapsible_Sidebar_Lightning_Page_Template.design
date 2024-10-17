@@ -1,0 +1,8 @@
+<design:component label="Matters Collapsible Right Sidebar">
+    <flexipage:template>
+        <flexipage:region name="header" defaultWidth="LARGE" />
+        <flexipage:region name="subheader" defaultWidth="LARGE" />
+        <flexipage:region name="main" defaultWidth="MEDIUM" />
+        <flexipage:region name="sidebar" defaultWidth="SMALL" />
+    </flexipage:template>
+</design:component>

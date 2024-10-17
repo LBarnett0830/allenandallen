@@ -1,0 +1,660 @@
+<aura:component controller="closeResolutionController"  implements="force:lightningQuickAction,force:hasRecordId,force:appHostable"  >
+    <aura:html tag="style">
+        .slds-modal__container{
+        /*height : auto;*/
+        width: 60%;
+        max-width: 800px;
+        }
+        
+        .slds-modal__header{
+        background: #337AB7 !important; color: #fff;
+        }
+        
+        .modal-body{
+        height : 100% !important;
+        max-height: 700px !important;
+        }
+        
+        .slds-modal__footer{
+        display: none;
+        }
+        .confirmation{
+        display: block;
+        }
+        .slds-modal__content{
+        height : 100% !important;
+        max-height: 500px !important;
+        }
+        
+        .footerToDisplay{
+        /* border-top: var(--lwc-borderWidthThick,2px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+        border-bottom-right-radius: var(--lwc-borderRadiusMedium,0.25rem);
+        border-bottom-left-radius: var(--lwc-borderRadiusMedium,0.25rem);
+        padding: var(--lwc-spacingSmall,0.75rem) var(--lwc-spacingMedium,1rem);
+        background-color: var(--lwc-colorBackground,rgb(243, 242, 242));
+        text-align: right;
+        box-shadow: var(--lwc-shadowDropDown,0 2px 3px 0 rgba(0, 0, 0, 0.16));*/
+        }
+        .tblTR{
+        height:30px;
+        }
+        .TD1{
+        width:10%;
+        }
+        .TD2{
+        width:60%;
+        }
+        .TD3{
+        width:20%;
+        text-align:right;margin-right:20px;
+        }
+        .TD4{
+        width:10%;
+        }
+        
+        @media only screen and (min-width: 992px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 650px !important;
+        }
+        }
+        
+        /* Extra large devices (large laptops and desktops, 1200px and up) */
+        @media only screen and (min-width: 1200px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 700px !important;
+        }
+        
+        .slds-modal__content{
+        height : 100% !important;
+        max-height: 670px !important;
+        }
+        
+        } 
+        
+        /* Extra large devices (large laptops and desktops, 2000px and up) */
+        @media only screen and (min-width: 1500px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 750px !important;
+        }
+        
+        .slds-modal__content{
+        height : 100% !important;
+        max-height: 850px !important;
+        }
+        } 
+    </aura:html> 
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="objResolution" type="sobject" />
+    <aura:attribute name="objWrapper" type="closeResolutionWrapper" />
+    <aura:attribute name="showSpinner" type="boolean" />
+    <aura:attribute name="showCloseBtn" type="boolean" />
+    <aura:attribute name="showConfirmToClose" type="boolean" />
+    <aura:attribute name="showConfirmTrustBalance" type="boolean" />
+    <aura:attribute name="confirmTrustBalance" type="boolean" default="false"/>
+    <aura:attribute name="totalDistribution" type="decimal" />
+    
+    <div class="content" style="padding-left:60px;padding-right:50px;">
+        <aura:if isTrue="{!v.showCloseBtn}">
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4" style="padding-top:10px;">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold">Resolution</label>
+                        <div class="slds-form-element__control">
+                            {!v.objResolution.Name}
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-4" style="padding-top:10px;">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold">Resolution Date</label>
+                        <div class="slds-form-element__control">
+                            <b> <ui:outputDate value="{!v.objResolution.litify_pm__Resolution_Date__c}" format="MM/dd/YYYY"/>  </b>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--2-of-4" style="padding-top:10px;">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold">Matter</label>
+                        <div class="slds-form-element__control">
+                            {!v.objResolution.litify_pm__Matter__r.Name}   {!v.objResolution.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                        </div>
+                        <!-- <div class="slds-form-element__control">
+                            {!v.objResolution.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                        </div>-->
+                    </div>
+                </div>
+                <div style="height:3px;width:100%;background-color: black;"> </div>
+                
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer " width="100%">    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">1.</td>
+                        <td class="TD2">Settlement Amount</td>                        
+                        <td class="TD3">
+                            
+                            <ui:outputCurrency value="{!v.objResolution.litify_pm__Settlement_Verdict_Amount__c}"/>
+                            <aura:if isTrue="{!v.objResolution.litify_pm__Settlement_Verdict_Amount__c==null}">
+                                $0.00
+                            </aura:if>
+                        </td>
+                        <td class="TD4">                            
+                        </td>
+                    </tr>
+                    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">2.</td>
+                        <td class="TD2">Contingency Fee Rate</td>                        
+                        <td class="TD3">
+                            
+                            <ui:outputText  value="{!v.objResolution.AAAA_Fee_Rate__c+'%'}" />
+                            <aura:if isTrue="{!v.objResolution.AAAA_Fee_Rate__c==null}">
+                                0.00%
+                            </aura:if>
+                        </td>
+                        <td class="TD4">                           
+                            
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">3.</td>
+                        <td class="TD2">Contingency Fee</td>                        
+                        <td class="TD3">
+                            
+                            <ui:outputCurrency value="{!v.objResolution.Effective_Contingency_Fee__c}" />
+                            <aura:if isTrue="{!v.objResolution.Effective_Contingency_Fee__c==null}">
+                                $0.00
+                            </aura:if>
+                        </td>
+                        <td class="TD4">                           
+                            
+                        </td>
+                    </tr>
+                    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">4.</td>
+                        <td class="TD2">Fees Written Off</td>                        
+                        <td class="TD3">
+                            
+                            <ui:outputCurrency value="{!v.objResolution.Fees_Written_Off__c}"/>
+                            <aura:if isTrue="{!v.objResolution.Fees_Written_Off__c==null}">
+                                $0.00
+                            </aura:if>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">5.</td>
+                        <td class="TD2">Referral Fees</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Referral_Fees__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Referral_Fees__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">6.</td>
+                        <td class="TD2">Hard Costs</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Hard_Costs__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Hard_Costs__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">7.</td>
+                        <td class="TD2">Soft Costs </td>                        
+                        <td class="TD3"> 
+                            <aura:if isTrue="{!v.objResolution.Soft_Costs__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Soft_Costs__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">8.</td>
+                        <td class="TD2">Total Expenses</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.litify_pm__Total_Expenses__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.litify_pm__Total_Expenses__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <!--<tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">9.</td>
+                        <td class="TD2">Voided Hard Cost</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Voided_Hard_Costs__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Voided_Hard_Costs__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">10.</td>
+                        <td class="TD2">Voided Soft Cost</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Voided_Soft_Costs__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Voided_Soft_Costs__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>-->
+                    
+                </table>
+                
+                <span style="font-weight:bold;margin-top:15px;margin-bottom:5px;">  Distributions (Trust Ledger)</span> 
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer " width="100%">
+                    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">1.</td>
+                        <td class="TD2">Attorney Referrals</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Attorney_Referrals__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Attorney_Referrals__c}"/>
+                        </td>
+                        <td class="TD4">
+                            
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">2.</td>
+                        <td class="TD2">Firm Distribution</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Firm_Distribution_After_Referral_Fees__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Firm_Distribution_After_Referral_Fees__c}"/>
+                        </td>
+                        <td class="TD4">
+                            
+                        </td>
+                    </tr>                    
+                    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">3.</td>
+                        <td class="TD2">Total Paid Damages</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.litify_pm__Total_Damages__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.litify_pm__Total_Damages__c-v.objWrapper.escrowedDmgs}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">4.</td>
+                        <td class="TD2">Total Escrowed Damages</td>                        
+                        <td class="TD3">                           
+                            <ui:outputCurrency value="{!v.objWrapper.escrowedDmgs}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    
+                    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">5.</td>
+                        <td class="TD2">Total Paid Liens</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Total_Liens__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Total_Liens__c-v.objWrapper.escrowedLiens}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">6.</td>
+                        <td class="TD2">Total Escrowed Liens</td>                        
+                        <td class="TD3">
+                            <ui:outputCurrency value="{!v.objWrapper.escrowedLiens}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">7.</td>
+                        <td class="TD2">Third-party distributions</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Third_Party_Distributions__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Third_Party_Distributions__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">8.</td>
+                        <td class="TD2">Client Distribution</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.objResolution.Client_Distribution__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Client_Distribution__c}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    <tr   class="slds-hint-parent tblTR">
+                        <td class="TD1">9.</td>
+                        <td class="TD2">Total Distributions</td>                        
+                        <td class="TD3">
+                            <aura:if isTrue="{!v.totalDistribution==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.totalDistribution}"/>
+                        </td>
+                        <td class="TD4">
+                        </td>
+                    </tr>
+                    
+                    
+                    
+                    
+                    
+                </table>
+                
+                <span style="font-weight:bold;margin-top:15px;margin-bottom:5px;">Journal Entry on Firm Ledger</span>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer " width="100%">
+                    <tr>
+                        <td style="font-weight:bold;">GL Account</td><td style="font-weight:bold;">Debit</td><td style="font-weight:bold;">Credit</td>
+                        <td style="font-weight:bold;">Attorney</td>
+                    </tr>
+                    <aura:iteration  items="{!v.objWrapper.listJELineWrapper}" var="objJEWrp">
+                        <tr>
+                            <td>{!objJEWrp.GLName}</td>
+                            <td><ui:outputCurrency value="{!objJEWrp.debit}"/>
+                            </td>
+                            <td><ui:outputCurrency value="{!objJEWrp.credit}"/>
+                            </td>
+                            <td>{!objJEWrp.GLVariable4}</td>
+                        </tr>
+                    </aura:iteration>
+                </table>
+                
+            </div>
+        </aura:if>
+        <!-- If they need summary view before click close, then update below condition-->
+        <aura:if isTrue="{!v.objResolution.Status__c=='dummyValue'}">
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold">Resolution</label>
+                        <div class="slds-form-element__control">
+                            {!v.objResolution.Name}
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold">Matter</label>
+                        <div class="slds-form-element__control">
+                            {!v.objResolution.litify_pm__Matter__r.Name}   {!v.objResolution.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                        </div>
+                        <!-- <div class="slds-form-element__control">
+                            {!v.objResolution.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                        </div>-->
+                    </div>
+                </div>
+                
+            </div>
+            <br/>
+            
+            <span style="font-weight:bold;">Please tick against each row item to confirm</span>
+            <br/>  <br/>
+            
+            <div class="slds-box">
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer " width="100%">    
+                    <tr style="height:35px"  class="slds-hint-parent">
+                        <td>1.</td>
+                        <td style="width:60%">Total Attorney Fee</td>                        
+                        <td style="text-align:right;margin-right:20px;width:20%">
+                            
+                            <ui:outputCurrency value="{!v.objResolution.Attorney_Fees__c}"/>
+                            <aura:if isTrue="{!v.objResolution.Attorney_Fees__c==null}">
+                                $0.00
+                            </aura:if>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk1"/>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!--  <tr style="height:35px"  class="slds-hint-parent">
+                        <td>2.</td>
+                        <td style="width:50%">Co-Counsel Fee</td>                        
+                        <td style="text-align:right;margin-right:20px;">
+                            <ui:outputCurrency value="{!v.objResolution.Co_Counsel_Contingency_Fee__c}"  />
+                            <aura:if isTrue="{!v.objResolution.Co_Counsel_Contingency_Fee__c==null}">
+                                $0.00
+                            </aura:if>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk2"/>
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    -->
+                    
+                    
+                    <tr style="height:35px"  class="slds-hint-parent">
+                        <td>2.</td>
+                        <td>Other Attorney Fees</td>                        
+                        <td style="text-align:right;margin-right:20px;">
+                            
+                            <ui:outputCurrency value="{!v.objResolution.Other_Attorney_Fees__c}" />
+                            <aura:if isTrue="{!v.objResolution.Other_Attorney_Fees__c==null}">
+                                $0.00
+                            </aura:if>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk3"/>
+                                
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    
+                    <tr style="height:35px"  class="slds-hint-parent">
+                        <td>3.</td>
+                        <td>Total Expenses</td>                        
+                        <td style="text-align:right;margin-right:20px;">
+                            
+                            <ui:outputCurrency value="{!v.objResolution.litify_pm__Total_Expenses__c}"/>
+                            <aura:if isTrue="{!v.objResolution.litify_pm__Total_Expenses__c==null}">
+                                $0.00
+                            </aura:if>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk4"/>
+                                
+                            </div>
+                            
+                        </td>
+                    </tr>
+                    <tr style="height:35px"  class="slds-hint-parent">
+                        <td>4.</td>
+                        <td>Write-off Amount</td>                        
+                        <td style="text-align:right;margin-right:20px;">
+                            <aura:if isTrue="{!v.objResolution.Amount_Written_off__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Amount_Written_off__c}"/>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk5"/> 
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    <tr style="height:35px"  class="slds-hint-parent">
+                        <td>5.</td>
+                        <td>Firm's Distribution</td>                        
+                        <td style="text-align:right;margin-right:20px;">
+                            <aura:if isTrue="{!v.objResolution.Firms_Distribution__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Firms_Distribution__c}"/>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk6"/>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    <tr style="height:35px"  class="slds-hint-parent">
+                        <td>6.</td>
+                        <td>Third Party Distribution </td>                        
+                        <td style="text-align:right;margin-right:20px;"> 
+                            <aura:if isTrue="{!v.objResolution.Other_Distributions__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Other_Distributions__c}"/>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk7"/>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    <tr style="height:35px"  class="slds-hint-parent">
+                        <td>7.</td>
+                        <td>Client Distribution</td>                        
+                        <td style="text-align:right;margin-right:20px;">
+                            <aura:if isTrue="{!v.objResolution.Clients_Distribution__c==null}">
+                                $0.00
+                            </aura:if>
+                            <ui:outputCurrency value="{!v.objResolution.Clients_Distribution__c}"/>
+                        </td>
+                        <td style="text-align:right;margin-right:20px;">
+                            <div style="margin-left: 20px;">
+                                <ui:inputCheckbox change="{!c.doCheck}" aura:id="chk8"/>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showCloseBtn}">
+            
+            <div class="slds-docked-form-footer footerToDisplay">
+                <button type="button" class="slds-button slds-button--neutral" onclick="{!c.handleCancel}">Cancel</button>
+                <button type="button" class="slds-button slds-button--brand" onclick="{!c.handleClose}">Close Resolution</button>
+            </div>
+            
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showConfirmToClose}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                            X
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to close</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="max-height:160px !important;">
+                        <center><p>Do you want to proceed with the Closure of Resolution?
+                            </p>
+                        </center> 
+                        <br/>
+                        <footer class="slds-modal__footer confirmation">
+                            <center>
+                                <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                                <button class="slds-button slds-button_brand" onclick="{!c.processClose}">Yes</button>
+                            </center>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+        <aura:if isTrue="{!v.showConfirmTrustBalance}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                            X
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate"> Insufficient Trust Balance</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1" style="max-height:160px !important;">
+                        
+                        <center><p>
+                            
+                            Do you want to disregard insufficient trust balance and continue with close? 
+                            </p>
+                        </center> 
+                        <br/>
+                        <footer class="slds-modal__footer confirmation">
+                            <center>
+                                <button class="slds-button slds-button_brand " onclick="{!c.hideConfirmation}">No</button>
+                                <button class="slds-button slds-button_neutral" onclick="{!c.processCloseWithInsufficientTrust}">Yes</button>
+                            </center>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        
+        
+        <aura:if isTrue="{!v.showSpinner}">
+            <div id="divLoading" >
+                <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                    <div class="slds-spinner_container slds-is-fixed">
+                        <div role="status" class="slds-spinner slds-spinner_medium">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        
+        
+    </div>
+    
+</aura:component>

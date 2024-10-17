@@ -1,0 +1,62 @@
+<template>
+  <lightning-card title="Document Generation ETL Tool">
+    <lightning-layout multiple-rows>
+      <lightning-layout-item padding="around-small" size="12">
+        This tool is used to export the follow SObject records from one organization and subsequently import them into another organization:
+        <ul class="slds-list_dotted">
+          <li>
+            Packets
+          </li>
+          <li>
+            Templates
+          </li>
+          <li>
+            Nodes
+          </li>
+          <li>
+            Inputs
+          </li>
+          <li>
+            Input Options
+          </li>
+          <li>
+            Rules
+          </li>
+          <li>
+            Format Options
+          </li>
+        </ul>
+      </lightning-layout-item>
+
+      <template if:true={loading}>
+        <lightning-layout-item padding="around-small" size="12">
+          Loaded {numLoadedObjects} out of {totalObjects} objects.
+        </lightning-layout-item>
+      </template>
+
+      <lightning-layout-item flex="auto" padding="around-small">
+        <lightning-button
+            class="slds-p-right_small"
+            disabled={loading}
+            label="Extract"
+            onclick={performExtract}
+            variant="brand">
+        </lightning-button>
+
+        <lightning-button
+            disabled={loading}
+            label="Load"
+            onclick={triggerFileSelection}
+            variant="brand">
+        </lightning-button>
+
+        <input
+            accept="text/plain"
+            onchange={performLoad}
+            onclick={clearInputFileValue}
+            style="display:none"
+            type="file" />
+      </lightning-layout-item>
+    </lightning-layout>
+  </lightning-card>
+</template>

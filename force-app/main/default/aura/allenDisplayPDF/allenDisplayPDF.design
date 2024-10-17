@@ -1,0 +1,5 @@
+<design:component>
+	<design:attribute  name="displayURL" label="PDF url" />
+    <design:attribute  name="height" label="PDF preview height" description="Height of PDF in pixels." default="800" />
+    
+</design:component>

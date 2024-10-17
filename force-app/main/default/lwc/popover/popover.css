@@ -1,0 +1,8 @@
+.slds-popover{
+    position: absolute;
+    left:0rem;
+    top:-1.3rem;
+}
+.alertDialog {
+    background: #ff595a;
+}

@@ -1,0 +1,20 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasRecordId" controller="DocusignTemplateMenuController">
+	<aura:attribute name="recordId" type="Id"/>	
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <lightning:navigation aura:id="navService"/>
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+    <aura:attribute name="selectedValue" type="String"/>
+	<aura:attribute name="options" type="List" />
+    <lightning:card  title="Docusign Templates">
+        <aura:set attribute="actions">
+            <lightning:button label="Select" variant="brand" onclick="{!c.handleClick}"/>
+        </aura:set>
+        <p class="slds-p-horizontal_small">
+            <lightning:select name="mySelect" label="Select Docusign template:" aura:id="mySelect" value="{!v.selectedValue}">
+                <aura:iteration items="{!v.options}" var="item">
+                    <option text="{!item.label}" value="{!item.value}" selected="{!item.selected}"/>
+                </aura:iteration>
+            </lightning:select>
+        </p>
+    </lightning:card>
+</aura:component>

@@ -1,0 +1,531 @@
+<apex:page standardController="AcctSeed__Cash_Disbursement_Batch__c" extensions="CDBatchPrintCheckExt" renderAs="pdf"  applyBodyTag="false" showHeader="false" sidebar="false" >
+    <html>
+    <head>
+        <style type="text/css" media="print">
+            @page  {
+
+                font-family: Times;
+                margin-top : 140px;
+                margin-left : 25px;
+                margin-right : 25px;
+                margin-bottom : 25px;
+            }
+            div.header {
+
+                position: running(header);
+
+            }
+            table{
+                border-collapse: collapse;
+            }
+            div.content {
+
+            }
+            div.footer {
+
+            }
+            .dmgLienInv{
+                width:45%;
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                margin-right: 7px;
+            }
+        </style>
+    </head>
+    <!-- <body style="font-family: Times;">-->
+
+    <!-- Operating Layout -->
+    <apex:outputPanel rendered="{!MapCheck && LayoutType == 'Operating'}" >
+        <apex:variable var="index" value="{!1}" />
+        <apex:repeat value="{!listCashDisbursementFiltered}" var="objCD">
+            <div class="header">
+
+                <table width="100%" style="width:100%;border-collapse: collapse;">
+                    <tr style="height: 55px;">
+                        <td colspan="4" style="padding-left: 5px;"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="padding-left: 5px;padding-top: 10px;">{!mapCDAndTotal[objCD.Id]}</td>
+                    </tr>
+                    <tr style="height: 50px;">
+                        <td colspan="2" style="padding-left: 5px;width: 60%;"></td>
+                        <td style="text-align:center;width: 20%;" >
+
+                            <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                <apex:param value="{!TodayDate}"/>
+                            </apex:outputText>
+
+                        </td>
+                        <td style="text-align:center;width: 20%;" >
+                            <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                <apex:param value="{!mapCDRecord[objCD.Id].AcctSeed__Amount__c}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr style="height: 77px;">
+                        <td style="font-size: 12px;padding-bottom: 5px;">
+                        </td>
+                        <td style="padding-left: 25px; padding-bottom: 5px;">
+                            <div style="position: relative; top: -15px;">
+                                {!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.Name}<br/>
+                                <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingStreet}"/><br/>
+                                <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingCity}"/>,&nbsp;<apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingState}"/> &nbsp;&nbsp; <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingPostalCode}"/>
+
+                            </div>
+                        </td>
+                        <td colspan="2" style="text-align:center;font-size: 15px;padding-left: 50px;padding-bottom: 30px;"></td>
+
+                    </tr>
+                    <tr style="height: 40px;">
+                        <td colspan="4">{!Memo}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <br/><br/>
+
+            <!-- Middle Stub -->
+            <div class="content" style="font-size:13px;">
+                <!--first summary table-->
+                <table width="100%" style="width:100%;border-collapse: collapse;margin-top:25px;">
+
+                    <tr style="height:50px;">
+                        <td rowspan="3" style="padding-bottom: 30px;border-bottom: 1px solid #1f1f14;" width="5%">To:</td>
+                        <td rowspan="3" width="30%" style="border-bottom: 1px solid #1f1f14;">{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.Name}<br/>
+                            <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingStreet}"/><br/>
+                            <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingCity}"/>,&nbsp;<apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingState}"/> &nbsp;&nbsp; <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingPostalCode}"/>
+
+                        </td>
+                        <td rowspan="3" width="30%" style="border-bottom: 1px solid #1f1f14;"></td>
+                        <td rowspan="3" width="35%" style="padding-right: 30px;padding-left: 10px;border-bottom: 1px solid #1f1f14;">
+                            <table width="100%">
+                                <tr>
+                                    <td style="text-align: left;">Check Number:</td>
+                                    <td style="text-align: right;">{!mapCDRecord[objCD.Id].AcctSeed__Check_Number__c}</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;">Check Date:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                            <apex:param value="{!TodayDate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;">Check Amount:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                            <apex:param value="{!mapCDRecord[objCD.Id].AcctSeed__Amount__c}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <div style="height: 240px;">
+                    <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;table-layout: fixed;overflow-wrap: break-word;" >
+
+                        <!-- operating lines - if any -->
+                        <apex:repeat value="{!mapCDAndAPDisbursementOperationgTen[objCD.Id]}" var="payable">
+                            <tr style="height: 20px;width:100%">
+                                <td style="padding-right: 10px;width: 30%;max-width: 150px;overflow: hidden;display: flex;text-overflow: ellipsis;white-space: nowrap;">{!payable.AcctSeed__Account_Payable__r.AcctSeed__Payee_Reference__c}</td>
+                                <td style="padding-right: 10px;width: 20%;margin-left:10px;max-width: 150px;overflow: hidden;display: flex;text-overflow: ellipsis;white-space: nowrap;"> {!Memo}</td>
+                                <td style="text-align: right; width: 20%;">{!payable.AcctSeed__Account_Payable__r.Name}</td>
+                                <td style="text-align: right;padding-right: 30px; width: 25%;">
+                                    <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                        <apex:param value="{!payable.AcctSeed__Paid_Amount__c}" />
+                                    </apex:outputText>
+                                </td>
+
+                            </tr>
+                        </apex:repeat>
+
+                    </table>
+                </div>
+
+                <br/><br/>
+
+                <!--second summary table-->
+                <table width="100%" style="width:100%;width:100%;margin-top:5px;border-collapse: collapse;">
+
+                    <tr style="height:50px;">
+                        <td rowspan="3" style="padding-bottom: 30px;border-bottom: 1px solid #1f1f14;" width="5%">To:</td>
+                        <td rowspan="3" width="30%" style="border-bottom: 1px solid #1f1f14;">{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.Name}<br/>
+                            <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingStreet}"/><br/>
+                            <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingCity}"/>,&nbsp;<apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingState}"/> &nbsp;&nbsp; <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingPostalCode}"/>
+                        </td>
+
+                        <td rowspan="3" width="30%" style="border-bottom: 1px solid #1f1f14;"></td>
+                        <td rowspan="3" width="35%" style="padding-right: 30px;padding-left: 10px; border-bottom: 1px solid #1f1f14;">
+                            <table width="100%">
+                                <tr>
+                                    <td style="text-align: left;">Check Number:</td>
+                                    <td style="text-align: right;">{!mapCDRecord[objCD.Id].AcctSeed__Check_Number__c}</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;">Check Date:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                            <apex:param value="{!TodayDate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;">Check Amount:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                            <apex:param value="{!mapCDRecord[objCD.Id].AcctSeed__Amount__c}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;table-layout: fixed;overflow-wrap: break-word;" >
+                    <!-- operating lines -->
+                    <apex:repeat value="{!mapCDAndAPDisbursementOperationgTen[objCD.Id]}" var="payable">
+                        <tr style="height: 20px;">
+                            <td style="padding-right: 10px;width: 30%;max-width: 250px;overflow: hidden;display: flex;text-overflow: ellipsis;white-space: nowrap;">{!payable.AcctSeed__Account_Payable__r.AcctSeed__Payee_Reference__c}</td>
+                            <td style="padding-right: 10px;width: 20%;max-width: 250px;overflow: hidden;display: flex;text-overflow: ellipsis;white-space: nowrap;">{!Memo}</td>
+                            <td style="text-align: right;width: 25%;">{!payable.AcctSeed__Account_Payable__r.Name}</td>
+                            <td style="text-align: right;padding-right: 30px;width: 25%;">
+                                <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                    <apex:param value="{!payable.AcctSeed__Paid_Amount__c}" />
+                                </apex:outputText>
+                            </td>
+
+                        </tr>
+                    </apex:repeat>
+                </table>
+
+
+            </div>
+            <!--<div class="footer">
+
+            </div>-->
+
+            <apex:outputPanel rendered="{!index <= (listCashDisbursementFiltered.size - 1)}">
+                <div style="page-break-after: always"/>
+                <div style="height:7px;">
+
+                </div>
+            </apex:outputPanel>
+
+            <apex:variable value="{!index+1}" var="index"/>
+
+        </apex:repeat>
+    </apex:outputPanel>
+
+    <!-- Trust Layout -->
+    <apex:outputPanel rendered="{!MapCheck && LayoutType == 'Trust'}" >
+
+        <apex:variable var="index" value="{!1}" />
+        <apex:repeat value="{!listCashDisbursementFiltered}" var="objCD">
+            <div class="header">
+
+                <table width="100%" style="width:100%; ">
+                    <tr style="height: 55px;">
+                        <td colspan="4" style="padding-left: 5px;"></td>
+                    </tr>
+                    <tr style="height: 30px;">
+                        <td colspan="4" style="padding-left: 5px;padding-top: 10px;">{!mapCDAndTotal[objCD.Id]}</td>
+                    </tr>
+                    <tr style="height: 40px;">
+                        <td colspan="2" style="padding-left: 5px;padding-top:10px;width:60%;"></td>
+                        <td style="text-align:center;padding-top:10px;width:20%;" >
+
+                                <span style="padding-left: 25px;">
+                                    <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                        <apex:param value="{!TodayDate}"/>
+                                    </apex:outputText>
+                                </span>
+
+
+                        </td>
+                        <td style="text-align:center;padding-top:10px;width:20%;" >
+                            &nbsp; &nbsp; &nbsp;
+                            <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                <apex:param value="{!mapCDRecord[objCD.Id].AcctSeed__Amount__c}" />
+                            </apex:outputText>
+
+                        </td>
+                    </tr>
+
+                    <tr style="height: 135px;vertical-align:top;">
+                        <td style="font-size: 12px;padding-bottom: 10px;">
+                        </td>
+                        <td style="padding-left: 25px;padding-top: 10px;">
+                            <div style="">
+                                {!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.Name}<br/>
+                                <apex:repeat value="{!alternatePayeeMap[objCD.Id]}" var="payable">
+
+                                    <apex:outputPanel rendered="{!if(payable.AcctSeed__Account_Payable__r.Alternate_Payee__c != null, true, false)}">
+                                        payable.AcctSeed__Account_Payable__r.Resolution__r.Alternate_Payee_Reason__c
+                                    </apex:outputPanel>
+
+                                    <apex:outputPanel rendered="{!if(payable.AcctSeed__Account_Payable__r.Alternate_Payee__c != null, false, true)}">
+                                        <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingStreet}"/><br/>
+                                        <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingCity}"/>,&nbsp;<apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingState}"/> &nbsp;&nbsp; <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingPostalCode}"/>
+                                    </apex:outputPanel>
+
+                                </apex:repeat>
+
+                            </div>
+                        </td>
+                        <td colspan="2" style="text-align:center;font-size: 15px;padding-left: 50px;padding-bottom: 30px;"></td>
+
+
+                    </tr>
+                    <!--commented 09-24<tr style="height: 20px;">
+
+<td colspan="4">{!Memo}</td>
+
+</tr>-->
+
+                </table>
+            </div>
+
+            <div class="content" style="font-size:13px;">
+                <!--top table-->
+                <table width="100%" style="width:100%;margin-top:20px;border-collapse: collapse;">
+                    <tr style="height:10px;"  width="100%" >
+                        <td colspan="4"></td>
+                    </tr>
+                    <tr style="height:75px;vertical-align:top;"  width="100%" >
+                        <td rowspan="3" style="padding-bottom: 30px; border-bottom: 1px solid #1f1f14;" width="5%">To:</td>
+                        <td rowspan="3" width="30%" style="border-bottom: 1px solid #1f1f14;">{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.Name}<br/>
+                            <apex:repeat value="{!alternatePayeeMap[objCD.Id]}" var="payable">
+                                <apex:outputPanel rendered="{!if(payable.AcctSeed__Account_Payable__r.Alternate_Payee__c != null, true, false)}">
+                                    payable.AcctSeed__Account_Payable__r.Resolution__r.Alternate_Payee_Reason__c
+                                </apex:outputPanel>
+
+                                <apex:outputPanel rendered="{!if(payable.AcctSeed__Account_Payable__r.Alternate_Payee__c != null, false, true)}">
+                                    <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingStreet}"/><br/>
+                                    <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingCity}"/>,&nbsp;<apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingState}"/> &nbsp;&nbsp; <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingPostalCode}"/>
+                                </apex:outputPanel>
+                            </apex:repeat>
+                        </td>
+                        <td rowspan="3" width="32%" style="border-bottom: 1px solid #1f1f14;"></td>
+                        <td rowspan="3" width="33%" style="padding-right: 30px;padding-left: 10px; border-bottom: 1px solid #1f1f14;">
+                            <table style="width:100%;border-collapse: collapse;margin-top:10px;table-layout: fixed;overflow-wrap: break-word;">
+                                <tr style="width:100%;">
+                                    <td style="text-align: left;">Check Number:</td>
+                                    <td style="text-align: right;">{!mapCDRecord[objCD.Id].AcctSeed__Check_Number__c}</td>
+                                </tr>
+                                <tr style="width:100%;">
+                                    <td style="text-align: left;">Check Date:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                            <apex:param value="{!TodayDate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;">Check Amount:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                            <apex:param value="{!mapCDRecord[objCD.Id].AcctSeed__Amount__c}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+                <div style="height: 222px;">
+                    <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;table-layout: fixed;overflow-wrap: break-word;" >
+                        <tr style="border-bottom: 1px solid black">
+                            <td style="border-bottom: 1px solid black;width:33%;">Reference</td>
+                            <td style="border-bottom: 1px solid black;width:17%;padding-left: 5px;">Matter</td>
+                            <td style="border-bottom: 1px solid black;width:25%;padding-left: 5px;">Name</td>
+                            <td style="border-bottom: 1px solid black;width:8%;"></td>
+                            <td style="text-align: right;padding-right: 30px;border-bottom: 1px solid black;width:17%;">Amount</td>
+
+                        </tr>
+                        <apex:repeat value="{!mapCDAndAPDisbursementTen[objCD.Id]}" var="payable">
+
+                            <tr style="height: 20px;">
+                                <td style="padding-right: 5px;width:33%;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;display:flex;">
+                                    <apex:outputPanel rendered="{!payable.AcctSeed__Account_Payable__r.Damage__c != Null}">
+                                        <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                                            <tr style="width:100%">
+                                                <td style="width:45%;overflow: hidden;text-overflow: ellipsis; white-space: nowrap; margin-right: 7px;display:flex;">
+                                                    <span style="margin-right: 7px;max-width: 10px;">{!payable.AcctSeed__Account_Payable__r.Damage_Lien_Account__c}</span>
+
+                                                </td>
+                                                <td style="width:5%"></td>
+                                                <td  style="width:43%; overflow: hidden;text-overflow: ellipsis; white-space: nowrap; margin-right: 7px;display:flex;">
+                                                    <span> {!payable.AcctSeed__Account_Payable__r.Damage_Lien_Invoice__c}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputPanel>
+
+                                    <apex:outputPanel rendered="{!payable.AcctSeed__Account_Payable__r.Lien__c != Null}">
+                                        <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                                            <tr>
+                                                <td style="width:45%; overflow: hidden;text-overflow: ellipsis; white-space: nowrap; margin-right: 7px;display:flex;">
+                                                    {!payable.AcctSeed__Account_Payable__r.Damage_Lien_Account__c}</td>
+                                                <td style="width:5%"></td>
+                                                <td style="width:43%; overflow: hidden;text-overflow: ellipsis; white-space: nowrap; margin-right: 7px;display:flex;">
+                                                    {!payable.AcctSeed__Account_Payable__r.Damage_Lien_Invoice__c}</td>
+                                            </tr>
+                                        </table>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!payable.AcctSeed__Account_Payable__r.Origin__c == 'Litify'}">
+                                        {!payable.AcctSeed__Account_Payable__r.AcctSeed__Payee_Reference__c}
+                                    </apex:outputPanel>
+
+                                </td>
+                                <td style="padding-left: 5px;padding-right: 5px;width:17%;">{!mapPayableWithMatter[payable.AcctSeed__Account_Payable__c]}</td>
+                                <td style="padding-left: 5px;max-width: 250px;overflow: hidden;display: block;text-overflow: ellipsis;white-space: nowrap;">{!mapPayableWithClient[payable.AcctSeed__Account_Payable__c]}</td>
+                                <td style="padding-left: 10px;width:8%;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;display:flex;">{!mapPayableWithAlias[payable.AcctSeed__Account_Payable__c]}</td>
+                                <!--{!payable.AcctSeed__Account_Payable__r.Resolution__r.litify_pm__Matter__r.litify_pm__Principal_Attorney__r.Alias}-->
+                                <td width="18%" style="text-align: right;padding-right: 30px;width:17%;">
+                                    <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                        <apex:param value="{!payable.AcctSeed__Paid_Amount__c}" />
+                                    </apex:outputText>
+                                </td>
+
+                            </tr>
+
+                            <!--<tr style="height: 10px;">
+<td colspan=" 5" style="padding-right: 5px;width:100%;">{!payable.AcctSeed__Account_Payable__r.AcctSeed__Payee_Reference__c}</td>
+</tr>-->
+                        </apex:repeat>
+
+                    </table>
+                </div>
+
+                <br/><br/>
+                <!--bottom table-->
+                <table width="100%" style="width:100%;border-bottom: 1px solid #1f1f14;border-collapse: collapse;margin-top:10px;">
+
+                    <tr style="height:80px;">
+                        <td rowspan="3" style="padding-bottom: 30px;border-bottom: 1px solid #1f1f14;" width="5%">To:</td>
+                        <td rowspan="3" width="30%" style="border-bottom: 1px solid #1f1f14;">{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.Name}<br/>
+                            <apex:repeat value="{!alternatePayeeMap[objCD.Id]}" var="payable">
+                                <apex:outputPanel rendered="{!if(payable.AcctSeed__Account_Payable__r.Alternate_Payee__c != null, true, false)}">
+                                    payable.AcctSeed__Account_Payable__r.Resolution__r.Alternate_Payee_Reason__c
+                                </apex:outputPanel>
+
+                                <apex:outputPanel rendered="{!if(payable.AcctSeed__Account_Payable__r.Alternate_Payee__c != null, false, true)}">
+                                    <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingStreet}"/><br/>
+                                    <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingCity}"/>,&nbsp;<apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingState}"/> &nbsp;&nbsp; <apex:outputField value="{!mapCDRecord[objCD.Id].AcctSeed__Vendor__r.BillingPostalCode}"/>
+                                </apex:outputPanel>
+                            </apex:repeat>
+                        </td>
+                        <td rowspan="3" width="32%" style="border-bottom: 1px solid #1f1f14;"></td>
+                        <td rowspan="3" width="33%" style="padding-right: 30px;padding-left: 10px;border-bottom: 1px solid #1f1f14;">
+                            <table width="100%">
+                                <tr width="100%">
+                                    <td style="text-align: left;">Check Number:</td>
+                                    <td style="text-align: right;">{!mapCDRecord[objCD.Id].AcctSeed__Check_Number__c}</td>
+                                </tr>
+                                <tr width="100%">
+                                    <td style="text-align: left;">Check Date:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                            <apex:param value="{!TodayDate}"/>
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;">Check Amount:</td>
+                                    <td style="text-align: right;">
+                                        <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                            <apex:param value="{!mapCDRecord[objCD.Id].AcctSeed__Amount__c}" />
+                                        </apex:outputText>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;table-layout: fixed;overflow-wrap: break-word;" >
+                    <tr style="border-bottom: 1px solid black;">
+                        <td style="border-bottom: 1px solid black;width:33%;">Reference</td>
+                        <td style="border-bottom: 1px solid black;width:17%;padding-left: 5px;">Matter</td>
+                        <td style="border-bottom: 1px solid black;width:25%;padding-left: 5px;">Name</td>
+                        <td style="border-bottom: 1px solid black;width:8%;"></td>
+                        <td style="text-align: right;padding-right: 30px;border-bottom: 1px solid black;width:17%;">Amount</td>
+
+                    </tr>
+                    <apex:repeat value="{!mapCDAndAPDisbursementTen[objCD.Id]}" var="payable">
+
+                        <tr style="height: 20px;margin-top:10px;vertical-align:top;">
+                            <td style="padding-right: 5px;width:33%;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;display:flex;">
+                                <apex:outputPanel rendered="{!payable.AcctSeed__Account_Payable__r.Damage__c != Null}">
+                                    <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                                        <tr>
+                                            <td width="45%" style="max-width: 150px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{!payable.AcctSeed__Account_Payable__r.Damage_Lien_Account__c}</td>
+                                            <td style="width:5%"></td>
+                                            <td width="43%" style="max-width: 150px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{!payable.AcctSeed__Account_Payable__r.Damage_Lien_Invoice__c}</td>
+                                        </tr>
+                                    </table>
+                                </apex:outputPanel>
+
+                                <apex:outputPanel rendered="{!payable.AcctSeed__Account_Payable__r.Lien__c != Null}">
+                                    <table width="100%" style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                                        <tr>
+                                            <td width="45%" style="max-width: 150px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{!payable.AcctSeed__Account_Payable__r.Damage_Lien_Account__c}</td>
+                                            <td style="width:5%"></td>
+                                            <td width="43%" style="max-width: 150px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{!payable.AcctSeed__Account_Payable__r.Damage_Lien_Invoice__c}</td>
+                                        </tr>
+                                    </table>
+                                </apex:outputPanel>
+
+                                <apex:outputPanel rendered="{!payable.AcctSeed__Account_Payable__r.Origin__c == 'Litify'}">
+                                    {!payable.AcctSeed__Account_Payable__r.AcctSeed__Payee_Reference__c}
+                                </apex:outputPanel>
+
+                            </td>
+                            <td style="padding-right: 5px;width:17%;padding-left: 5px;">{!mapPayableWithMatter[payable.AcctSeed__Account_Payable__c]}</td>
+                            <!--{!payable.AcctSeed__Account_Payable__r.Resolution__r.litify_pm__Matter__r.Name}-->
+                            <td style="padding-left: 5px;max-width: 250px;overflow: hidden;display: block;text-overflow: ellipsis;white-space: nowrap;">{!mapPayableWithClient[payable.AcctSeed__Account_Payable__c]} </td>
+                            <!--{!payable.AcctSeed__Account_Payable__r.Resolution__r.litify_pm__Matter__r.litify_pm__Client__r.Name}-->
+                            <td style="padding-left: 8px;width:8%;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;display:flex;">{!mapPayableWithAlias[payable.AcctSeed__Account_Payable__c]}</td>
+                            <td width="20%" style="text-align: right;padding-right: 30px;width:17%;">
+                                <apex:outputText value="${0, number, ###,###,###,##0.00}">
+                                    <apex:param value="{!payable.AcctSeed__Paid_Amount__c}" />
+                                </apex:outputText>
+                            </td>
+
+                        </tr>
+
+                        <!--<tr style="height: 10px;">
+<td colspan=" 5" style="padding-right: 5px;width:100%;">{!payable.AcctSeed__Account_Payable__r.AcctSeed__Payee_Reference__c}</td>
+</tr>-->
+                    </apex:repeat>
+                </table>
+
+
+            </div>
+            <!--<div class="footer">
+
+</div>-->
+
+            <apex:outputPanel rendered="{!index <= (listCashDisbursementFiltered.size - 1)}">
+                <div style="page-break-after: always"/>
+                <div style="height:7px;">
+                </div>
+            </apex:outputPanel>
+
+            <apex:variable value="{!index+1}" var="index"/>
+
+        </apex:repeat>
+    </apex:outputPanel>
+
+    <apex:outputPanel rendered="{!!MapCheck}">
+        <h2>The Cash Disbursement Bank Account Should be "1000-Cash - Operating", "1050-Cash - Case Costs" or "1020-Cash - Trust"</h2>
+    </apex:outputPanel>
+
+    <!--</body>-->
+    </html>
+</apex:page>

@@ -1,0 +1,32 @@
+<!-- Design based on https://developer.salesforce.com/blogs/2018/08/all-about-custom-lightning-page-templates.html -->
+<aura:component implements="lightning:recordHomeTemplate" description="Full-width header above a collapsible right sidebar.">
+
+  <aura:attribute name="header" type="Aura.Component[]" description="Header region (sticky)"/>
+  <aura:attribute name="subheader" type="Aura.Component[]" description="Sub-Header region (not sticky)"/>
+  <aura:attribute name="main" type="Aura.Component[]" description="Main region"/>
+  <aura:attribute name="sidebar" type="Aura.Component[]" description="Collapsible sidebar region"/>
+
+  <aura:attribute name="isSidebarCollapsed" type="Boolean" access="private" default="false" />
+
+  <div>
+    <div class="sticky">{!v.header}</div>
+    <div class="subheader">{!v.subheader}</div>
+    <lightning:layout class="slds-m-top_medium">
+      <lightning:layoutItem flexibility="auto">
+        {!v.main}
+      </lightning:layoutItem>
+      <lightning:layoutItem flexibility="no-flex">
+        <lightning:buttonIcon 
+          onclick ="{!c.toggleSidebarSection}"
+          class="design-allow-interaction toggle slds-p-around_xxx-small slds-m-horizontal_xx-small"
+          variant="border-filled"
+          iconName="{! v.isSidebarCollapsed ? 'utility:chevronleft' : 'utility:chevronright' }" 
+          alternativeText="{! v.isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar' }" 
+        />
+      </lightning:layoutItem>
+      <lightning:layoutItem class="{! v.isSidebarCollapsed ? ' slds-hide' : '' }" size="4">
+        {!v.sidebar}
+      </lightning:layoutItem>
+    </lightning:layout>
+  </div>
+</aura:component>

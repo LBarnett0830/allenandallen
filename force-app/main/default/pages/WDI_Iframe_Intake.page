@@ -1,0 +1,8 @@
+<apex:page standardController="litify_pm__Intake__c" extensions="WDI_IntakeIframeExtension"> 
+    <!-- CabinetNameValue: {!cabinetNameValue} 
+    FieldValue: {!fieldValue}
+    LookupValue: {!lookupValue} -->
+<apex:iframe scrolling="true" 
+height="825px" 
+src="https://wdweb.allenandallen.com/login?query=?@{!cabinetNameValue} ?{!fieldValue} {!lookupValue}"/> 
+</apex:page>

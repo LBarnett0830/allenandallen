@@ -1,0 +1,31 @@
+<template>
+    <div class ="container">
+        <div class="pagination-buttons">
+            <!--
+            <button onclick={handlePrevious} disabled={currentPage === 1}>Previous</button>
+            <span>Page {currentPage} of {totalPages}</span>
+            <button onclick={handleNext} disabled={currentPage === totalPages}>Next</button>
+            -->
+            <lightning-button 
+                class="slds-var-m-left_small"
+                type="submit"
+                label="< Previous"
+                onclick={handlePrevious}>
+            </lightning-button>                    
+        </div>
+        <div class="record_count_wrapper">{currentPage} / {totalPages}</div>
+        <div class="pagination-buttons">
+            <!--
+            <button onclick={handlePrevious} disabled={currentPage === 1}>Previous</button>
+            <span>Page {currentPage} of {totalPages}</span>
+            <button onclick={handleNext} disabled={currentPage === totalPages}>Next</button>
+            -->
+            <lightning-button 
+                class="slds-var-m-left_small"
+                type="submit"
+                label="Next >"
+                onclick={handleNext}>
+            </lightning-button>                    
+        </div>    
+    </div>
+</template>

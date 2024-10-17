@@ -1,0 +1,722 @@
+<apex:page controller="closingStatementPdfController" showHeader="false" applyBodyTag="false" renderAs="pdf" >
+    <head>
+        <style type="text/css" media="print">
+            @page:first {
+                @top-center {
+                    content: element(header);
+                }
+                @bottom-right {
+                    content: element(footer);
+                }
+                @bottom-left {
+                    content: element(footer-left);
+                }
+                margin-top: 240px;
+
+            <apex:outputText escape="false" rendered="{!objWrapper.watermark = 'yes'}">
+            background-image: url("{!URLFOR($Resource.unapprovedWatermark)}");
+                background-repeat: no-repeat !important;
+                background-position: center center !important;
+                background-size: contain !important;
+                position: absolute !important;
+                width: 100%;
+                overflow: hidden;">
+            </apex:outputText>
+
+            }
+            @page {
+                @top-center {
+                    content: element(header);
+                }
+                @bottom-right {
+                    content: element(footer);
+                }
+                @bottom-left {
+                    content: element(footer-left);
+                }
+                margin-top: 180px;
+
+            <apex:outputText escape="false" rendered="{!objWrapper.watermark = 'yes'}" >
+            background-image: url("{!URLFOR($Resource.unapprovedWatermark)}");
+                background-repeat: no-repeat !important;
+                background-position: center center !important;
+                background-size: contain !important;
+                position: absolute !important;
+                width: 100%;
+                overflow: hidden;
+            </apex:outputText>
+
+            }
+            div.header {
+                padding: 10px;
+                position: running(header);
+            }
+            div.footer-left {
+                display: block;
+                position: running(footer-left);
+                text-align: left;
+                padding-top: 5px;
+            }
+            div.footer {
+                display: block;
+                padding-top: 5px;
+                position: running(footer);
+                text-align:right;
+            }
+            .pagenumber:before {
+                content: counter(page);
+            }
+            .pagecount:before {
+                content: counter(pages);
+            }
+            div.logo{
+                text-align:center;top:-500px !important;display:block;
+            }
+            .tdHeader{
+                background-color:rgb(221,221,221);
+                font-weight:bold;
+
+            }
+            .tblDmgTd{
+                background-color:rgb(221,221,221);
+            }
+            .TD1{
+                width:50%;
+            }
+            .TD2{
+                width:20%;
+            }
+            .TD3{
+                width:12%;
+            }
+            .TD4{
+                width:18%;
+            }
+            .headerTD1{
+                width:10%;font-weight:bold;
+            }
+            .headerTD2{
+                width:23%;
+            }
+            .headerTD3{
+                width:13%;font-weight:bold;
+            }
+            .headerTD4{
+                width:16%;
+            }
+            .headerTD5{
+                width:17%;font-weight:bold;
+            }
+            .headerTD6{
+                width:21%;
+            }
+            .amountField{
+                text-align:right;
+            }
+            .content {
+                font-size: 10pt;
+            }
+            .spanHeader {
+                background-color:rgb(221,221,221);
+                font-weight:bold;
+                width:99%;
+                display:block;
+                padding:5px;
+                margin-bottom:11px;
+            }
+        </style>
+    </head>
+
+    <div class="header pageone">
+        <div class="logo" style="text-align:center; padding-top:20px;">
+            <apex:image url="{!URLFOR($Resource.Logo_for_Statements, 'AAA_Logo.png')}" width="300px;" height="75px;"/>
+        </div>
+        <div style="font-size: 10pt;">
+
+            <div style="text-align:center !important;height: 50px;padding-top:10px;">
+                <span style="text-align:center; font-weight:bold; font-size:22px;">{!objWrapper.header}</span>
+            </div>
+
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr>
+                    <td class="headerTD1">
+                        Client:
+                    </td>
+                    <td class="headerTD2">
+                        {!objWrapper.objResolution.litify_pm__Matter__r.litify_pm__Client__r.Name}
+                    </td>
+                    <td class="headerTD3">
+                        Date:
+                    </td>
+                    <td class="headerTD4">
+                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                            <apex:param value="{!objWrapper.objResolution.litify_pm__Resolution_Date__c}"/>
+                        </apex:outputText>
+                    </td>
+                    <td class="headerTD5">
+                        Attorney:
+                    </td>
+                    <td class="headerTD6">
+                        <apex:outputText value="{!IF(objWrapper.objResolution.litify_pm__Matter__r.Claims_User__c!=null,objWrapper.objResolution.litify_pm__Matter__r.Supervising_Attorney__r.Name,objWrapper.objResolution.litify_pm__Matter__r.litify_pm__Principal_Attorney__r.Name)}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="headerTD1">
+                        Matter:
+                    </td>
+                    <td class="headerTD2">
+                        {!objWrapper.objResolution.litify_pm__Matter__r.Name}
+                    </td>
+                    <td class="headerTD3">Resolution:</td>
+                    <td class="headerTD4">{!objWrapper.objResolution.name}</td>
+
+                    <apex:outputPanel rendered="{!objWrapper.objResolution.litify_pm__Matter__r.Claims_User__c!=null}" layout="none">
+                        <td  style="font-weight:bold;"  class="headerTD5">
+                            Claims Consultant:
+                        </td>
+                        <td class="headerTD6">
+                            {!objWrapper.objResolution.litify_pm__Matter__r.Claims_User__r.name}
+                        </td>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!objWrapper.objResolution.litify_pm__Matter__r.Claims_User__c==null}" layout="none">
+                        <td  style="font-weight:bold;"  class="headerTD5">
+                            &nbsp;
+                        </td>
+                        <td class="headerTD6">
+                            &nbsp;
+                        </td>
+                    </apex:outputPanel>
+                </tr>
+            </table>
+            <br/>
+            <div style="height:5px;width:100%;background-color: black;"> </div>
+            <br/>
+        </div>
+
+    </div>
+    <div class="header pagetwo" >
+        <div style="font-size: 10pt;margin-bottom:-50px;">
+
+            <div style="text-align:center !important;height: 50px;padding-top:10px;">
+                <span style="text-align:center; font-weight:bold; font-size:22px;">{!objWrapper.header}</span>
+            </div>
+
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr>
+                    <td class="headerTD1">
+                        Client:
+                    </td>
+                    <td class="headerTD2">
+                        {!objWrapper.objResolution.litify_pm__Matter__r.litify_pm__Client__r.Name}
+                    </td>
+
+                    <td class="headerTD3">
+                        Date:
+                    </td>
+                    <td class="headerTD4">
+                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                            <apex:param value="{!objWrapper.objResolution.litify_pm__Resolution_Date__c}"/>
+                        </apex:outputText>
+
+                    </td>
+
+                    <td  style="font-weight:bold;"  class="headerTD5">
+                        Attorney:
+                    </td>
+                    <td class="headerTD6">
+                        <apex:outputText value="{!IF(objWrapper.objResolution.litify_pm__Matter__r.Claims_User__c!=null,objWrapper.objResolution.litify_pm__Matter__r.Supervising_Attorney__r.Name,objWrapper.objResolution.litify_pm__Matter__r.litify_pm__Principal_Attorney__r.Name)}" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="headerTD1">
+                        Matter:
+                    </td>
+                    <td class="headerTD2">
+                        {!objWrapper.objResolution.litify_pm__Matter__r.Name}
+                    </td>
+
+                    <td class="headerTD3">Resolution:</td>
+                    <td class="headerTD4">{!objWrapper.objResolution.name}</td>
+
+                    <apex:outputPanel rendered="{!objWrapper.objResolution.litify_pm__Matter__r.Claims_User__c!=null}" layout="none">
+                        <td  style="font-weight:bold;"  class="headerTD5">
+                            Claims Consultant:
+                        </td>
+                        <td class="headerTD6">
+                            {!objWrapper.objResolution.litify_pm__Matter__r.Claims_User__r.name}
+                        </td>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!objWrapper.objResolution.litify_pm__Matter__r.Claims_User__c==null}" layout="none">
+                        <td  style="font-weight:bold;"  class="headerTD5">
+                            &nbsp;
+                        </td>
+                        <td class="headerTD6">
+                            &nbsp;
+                        </td>
+                    </apex:outputPanel>
+
+                </tr>
+
+            </table>
+            <br/>
+            <div style="height:5px;width:100%;background-color: black;"> </div>
+            <br/>
+        </div>
+
+    </div>
+
+    <div class="footer-left">
+        <div style="font-size: 10pt;">
+            {!objWrapper.footer}
+        </div>
+    </div>
+    <div class="footer">
+        <div style="font-size: 10pt;">
+            Page <span class="pagenumber"/> of <span class="pagecount" renderAs="pdf"/>
+        </div>
+    </div>
+
+    <div class="content" style="font-size: 10pt;">
+
+        <!-- Settlement or Resolution received -->
+        <div style="margin-top:35px;display:block;">
+            <span class="spanHeader">RECEIPT
+            </span>
+
+            <div style="display:flex;width:100%">
+                <div style="float:left;width:70%;display: block;">
+                    <apex:outputText value="-" rendered="{!objWrapper.objResolution.litify_pm__Payor__c==null}"></apex:outputText>   {!objWrapper.objResolution.litify_pm__Payor__r.name}
+                    - {!objWrapper.objResolution.litify_pm__Resolution_Type__c}
+                </div>
+                <div style="float:left;width:30%;font-weight:bold;" class="amountField">
+                    <apex:outputText value="{0, Number, Currency}">
+                        <apex:param value="{!objWrapper.objResolution.litify_pm__Settlement_Verdict_Amount__c}" />
+                    </apex:outputText>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Allen Fees and Referral Fees-->
+        <div style="margin-top:35px;">
+            <span class="spanHeader">FEES</span>
+            <div style="display:flex;width:100%;">
+                <table style="vertical-align:top;width:100%;border-collapse:collapse;margin-top:10px;">
+                    <tr>
+                        <td style="width:55%;vertical-align:top;">
+                            <apex:outputText value="Allen, Allen, Allen, &amp; Allen, P.C. &nbsp;" escape="false">
+                            </apex:outputText>
+                        </td>
+                        <td style="width:15%;vertical-align:top;" class="amountField">
+                            <apex:outputText value="{0,Number,##0.000}% &nbsp; " escape="false">
+                                <apex:param value="{!objWrapper.AAANetFirmFeePercentage}" />
+                            </apex:outputText>
+                        </td>
+                        <td style="width: 15%;vertical-align:top;" class="amountField">
+                            <apex:outputText escape="false" value="{0, Number, Currency}">
+                                <apex:param value="{!objWrapper.AAAGrossAmountAfterWriteOff}" />
+                            </apex:outputText>
+                        </td>
+                        <td style="width: 15%" class="amountField">
+                            <!-- intended blank -->
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <apex:outputPanel rendered="{!objWrapper.objResolution.Fees_Written_Off__c!=null || objWrapper.objResolution.Fees_Written_Off__c>0}" >
+                <div style="display:flex;width:100%;">
+                    <table style="vertical-align:top;width:100%;border-collapse:collapse;">
+                        <tr>
+                            <td style="width:55%;vertical-align:top;">
+                                <apex:outputText escape="false" value=" &nbsp; &nbsp; Reduction: &nbsp; {0, Number, Currency} &nbsp;">
+                                    <apex:param value="{!objWrapper.objResolution.Fees_Written_Off__c * -1}" />
+                                </apex:outputText>
+                            </td>
+                            <td style="width:15%;vertical-align:top;" class="amountField">
+                                <apex:outputText value="{0} &nbsp; " escape="false">
+                                    <apex:param value="&nbsp;" />
+                                </apex:outputText>
+                            </td>
+                            <td style="width:15%;vertical-align:top;" class="amountField">
+                                <apex:outputText escape="false" value="{0}">
+                                    <!-- apex:param value="{!objWrapper.objResolution.Fees_Written_Off__c * -1}" / -->
+                                    <apex:param value="&nbsp;" />
+                                </apex:outputText>
+                            </td>
+                            <td style="width:15%" class="amountField">
+                                <!-- intended blank -->
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </apex:outputPanel>
+            <apex:repeat rendered="{!objWrapper.listReferral!=null}" value="{!objWrapper.listReferral}" var="objRef">
+                <div style="display:flex;width:100%;">
+                    <table style="vertical-align:top;width:100%;border-collapse:collapse;">
+                        <tr>
+                            <td style="width:55%">
+                                {!objRef.Account__r.Name}
+                                <apex:outputText escape="false" rendered="{!objRef.Comments__c!=''}" value=" &nbsp; - {0}"> <br/>
+                                    <apex:param value="{!objRef.Comments__c}" />
+                                </apex:outputText>
+                            </td>
+                            <td style="width:15%" class="amountField">
+                                <apex:outputText value="{0,Number,##0.000}% &nbsp; " escape="false">
+                                    <apex:param value="{!IF(objWrapper.objResolution.litify_pm__Settlement_Verdict_Amount__c<=0,0.00,objRef.Effective_Fee_Amount__c/objWrapper.objResolution.litify_pm__Settlement_Verdict_Amount__c*100)}" />
+                                </apex:outputText>
+                            </td>
+                            <td style="width:15%" class="amountField">
+                                <apex:outputText escape="false" value="{0, Number, Currency}">
+                                    <apex:param value="{!objRef.Effective_Fee_Amount__c}" />
+                                </apex:outputText>
+                            </td>
+                            <td style="width:15%" class="amountField">
+                                <!-- intended blank -->
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </apex:repeat>
+        </div>
+        <!-- Fees total section-->
+        <div style="display:flex;width:100%;">
+            <table style="vertical-align:top;width:100%;border-collapse:collapse;margin-top:7px;">
+                <tr style="height:30px;">
+                    <td style="width:55%">
+                    </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0,Number,##0.000}% &nbsp; " escape="false">
+                            <apex:param value="{!IF(objWrapper.objResolution.litify_pm__Settlement_Verdict_Amount__c<=0,0.00,(objWrapper.AAAGrossAmountAfterWriteOff+objWrapper.totalReferrals)/objWrapper.objResolution.litify_pm__Settlement_Verdict_Amount__c*100)}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="width:15%; border-top:solid 1px;font-weight:bold;"  class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.AAAGrossAmountAfterWriteOff+objWrapper.totalReferrals}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <!-- apex:param value="{!objWrapper.AAAGrossAmountAfterDeduct}" / -->
+                            <apex:param value="{!objWrapper.AAAGrossAmountAfterReferral}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!-- Costs Recovered - Expenses -->
+        <apex:outputPanel rendered="{!objWrapper.listExpenseWrapper.size>0}">
+            <div style="width:100%; margin-top:10px;">
+                <span class="spanHeader">EXPENSES</span>
+            </div>
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <apex:repeat value="{!objWrapper.listExpenseWrapper}" var="expWrp">
+                    <tr style="page-break-inside:avoid">
+                        <td  style="font-weight:bold;padding-top:7px;" >{!expWrp.expenseCatName} </td>
+                        <td style="width:15%" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!expWrp.totalByExpenseCategory}" />
+                            </apex:outputText>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <apex:repeat value="{!expWrp.listExpFinalWrapper}" var="exp">
+                        <apex:outputText rendered="{!exp.vendorName!='Missing Account' && exp.totalByVendor!=0}" >
+                            <tr style="width:100%">
+
+                                <td style="width:70%">{!exp.vendorName}</td>
+
+                                <td style="width:15%" class="amountField">
+                                    <apex:outputText value="{0, Number, Currency}">
+                                        <apex:param value="{!exp.totalByVendor}" />
+                                    </apex:outputText>
+                                </td>
+
+                                <td style="width:15%" class="amountField">   </td>
+                            </tr>
+                        </apex:outputText>
+                    </apex:repeat>
+                </apex:repeat>
+            </table>
+        </apex:outputPanel>
+        <!-- Expense total section-->
+        <apex:outputPanel rendered="{!objWrapper.listExpenseWrapper.size>0}">
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;">
+                <tr style="margin-top:20px;height:30px;">
+                    <td style="width:50%"></td>
+                    <td style="width:20%"></td>
+                    <td style="border-top:solid 1px;width:15%;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.expenseTotal}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="border-top:solid 1px;width:15%;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.AAAGrossAmountAfterExpense}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+        </apex:outputPanel>
+
+
+        <!-- Damages -->
+        <apex:outputPanel rendered="{!objWrapper.listDamageFinalWrapper !=''}">
+            <div style="margin-top: 20px;page-break-inside:avoid">
+                <div style="margin-top: 10px;">
+                    <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                        <tr style="">
+                            <td style="width:40%;background-color:rgb(221,221,221);padding:5px 0px;" class="tdHeader"> &nbsp; DAMAGES</td>
+                            <td style="width:15%;background-color:rgb(221,221,221);padding:5px 0px;" class="tdHeader amountField" >Total Billed</td>
+                            <td style="width:15%;background-color:rgb(221,221,221);padding:5px 0px;" class="tdHeader amountField" >Escrow</td>
+                            <td style="width:15%;background-color:rgb(221,221,221);padding:5px 0px;" class="tdHeader amountField">To Pay</td>
+                            <td style="width:15%;background-color:rgb(221,221,221);padding:5px 0px;" class="tdHeader"> </td>
+                        </tr>
+                        <tr><td> &nbsp; </td><td></td><td></td><td></td><td> &nbsp; </td></tr>
+                        <apex:repeat value="{!objWrapper.listDamages}" var="objDmg">
+                            <tr style="">
+                                <td style="width:40%;padding-top:4px;">
+                                    <apex:outputPanel rendered="{!objDmg.Alternate_Payee__c!=null}">
+                                        {!objDmg.Alternate_Payee__r.Name} <br /> &nbsp; ({!objDmg.litify_pm__Provider__r.litify_pm__Party_Name__c})
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!objDmg.Alternate_Payee__c==null}">
+                                        {!objDmg.litify_pm__Provider__r.litify_pm__Party_Name__c}
+                                    </apex:outputPanel>
+                                </td>
+                                <td style="width:15%;padding-top:4px;" class="amountField">
+                                    <apex:outputText value="{0, Number, Currency}">
+                                        <apex:param value="{!objDmg.litify_pm__Amount_Billed__c}" />
+                                    </apex:outputText>
+                                </td>
+                                <td class="amountField" style="width:15%;padding-top:4px;">
+                                    <apex:outputText rendered="{!objDmg.Escrow__c==true}" value="{0, Number, Currency}">
+                                        <apex:param value="{!objDmg.Balance_Due__c}" />
+                                    </apex:outputText>
+                                    <apex:outputText rendered="{!objDmg.Escrow__c==false}" value="{0, Number, $0}">
+                                        <apex:param value="{!objWrapper.zeroDollar}" />
+                                    </apex:outputText>
+                                </td>
+                                <td style="width:15%;padding-top:4px;" class="amountField">
+                                    <apex:outputText rendered="{!objDmg.Escrow__c==false && objDmg.Balance_Due__c>0}" value="{0, Number, Currency}">
+                                        <apex:param value="{!objDmg.Balance_Due__c}" />
+                                    </apex:outputText>
+                                    <apex:outputText rendered="{!objDmg.Escrow__c==false && objDmg.Balance_Due__c==0}" value="{0, Number, $0}">
+                                        <apex:param value="{!objDmg.Balance_Due__c}" />
+                                    </apex:outputText>
+                                    <apex:outputText rendered="{!objDmg.Escrow__c==true}" value="{0, Number, $0}">
+                                        <apex:param value="{!objWrapper.zeroDollar}" />
+                                    </apex:outputText>
+                                </td>
+                                <td class="amountField" style="width:15%;padding-top:4px;">
+                                    &nbsp;  <!-- intentionally blank -->
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+                </div>
+            </div>
+            <!--damage total section-->
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;">
+                <tr style="height:30px;">
+                    <td style="width:40%;" class=""> </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class=""> <!-- Billed Blank --> </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.totalDamagesEscrow}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.totalDamagesPaid}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.AAAGrossAmountAfterDamage}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+        </apex:outputPanel>
+
+
+        <!-- Liens-->
+        <apex:outputPanel rendered="{!objWrapper.listLienFinalWrapper !=''}">
+            <div style="margin-top: 20px;page-break-inside:avoid">
+                <!-- span class="spanHeader">LIENS OTHER THAN DAMAGES</span -->
+                <div style="">
+                    <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                        <tr>
+                            <td style="width:55%;background-color:rgb(221,221,221);padding:5px 0px;" class="tdHeader">LIENS OTHER THAN DAMAGES</td>
+                            <td style="background-color:rgb(221,221,221);width:15%;padding:5px 0px;" class="tdHeader amountField" >Escrow</td>
+                            <td style="background-color:rgb(221,221,221);width:15%;padding:5px 0px;" class="tdHeader amountField">To Pay</td>
+                            <td style="background-color:rgb(221,221,221);width:15%;padding:5px 0px;" class="tdHeader"> &nbsp; </td>
+                        </tr>
+                        <tr><td> &nbsp; </td><td></td><td></td><td> &nbsp; </td></tr>
+                        <apex:repeat value="{!objWrapper.listLienes}" var="objLien">
+                            <tr style="">
+                                <td style="width:55%;">
+                                    <apex:outputPanel rendered="{!objLien.Alternate_Payee__c!=null}">
+                                        {!objLien.Alternate_Payee__r.Name} <br /> &nbsp; ({!objLien.Payee_Party__r.name})
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!objLien.Alternate_Payee__c==null}">
+                                        {!objLien.Payee_Party__r.name}
+                                    </apex:outputPanel>
+                                </td>
+                                <td style="width:15%;" class="amountField">
+                                    <apex:outputText rendered="{!objLien.Escrow__c==true}" value="{0, Number, Currency}">
+                                        <apex:param value="{!objLien.litify_pm__lit_Amount_Due__c}" />
+                                    </apex:outputText>
+                                    <apex:outputText rendered="{!objLien.Escrow__c==false}" value="{0, Number, $0}">
+                                        <apex:param value="{!objWrapper.zeroDollar}" />
+                                    </apex:outputText>
+                                </td>
+                                <td style="width:15%" class="amountField">
+                                    <apex:outputText rendered="{!objLien.Escrow__c==false}" value="{0, Number, Currency}">
+                                        <apex:param value="{!objLien.litify_pm__lit_Amount_Due__c}" />
+                                    </apex:outputText>
+                                    <apex:outputText rendered="{!objLien.Escrow__c==true}" value="{0, Number, $0}">
+                                        <apex:param value="{!objWrapper.zeroDollar}" />
+                                    </apex:outputText>
+                                </td>
+                                <td style="width:15%" class="amountField"> &nbsp; </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+                </div>
+            </div>
+            <!-- Liens summary table -->
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;">
+                <tr style="height:30px;">
+                    <td style="width:55%;" class=""></td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.totalLiensEscrow}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.totalLiens}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.AAAGrossAmountAfterLiens}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+
+        </apex:outputPanel>
+
+
+        <!--Escrow-->
+        <apex:outputPanel rendered="{!AND(Text(objWrapper.objResolution.Escrow__c) !='', objWrapper.objResolution.Escrow__c>0)}">
+            <br/>
+            <div style="margin-top: 20px;page-break-inside:avoid">
+                <span class="spanHeader">ESCROW</span>
+                <table style="vertical-align: top;width:100%;border-collapse: collapse;margin-top: 10px;">
+                    <tr style="height:25px;">
+                        <td colspan="2" style="width:70%" class="">{!objWrapper.objResolution.Escrow_Reason__c}</td>
+                        <td style="width:15%;" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!objWrapper.objResolution.Escrow__c}" />
+                            </apex:outputText>
+                        </td>
+                        <td style="width:15%;" class="amountField"> &nbsp; </td>
+                    </tr>
+                    <tr style="height:30px;margin-top:5px;">
+                        <td style="" class=""></td>
+                        <td style="width:20%;" class=""></td>
+                        <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!objWrapper.objResolution.Escrow__c}" />
+                            </apex:outputText>
+                        </td>
+                        <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!objWrapper.AAAGrossAmountAfterEscrow}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </apex:outputPanel>
+
+
+        <!-- Distributions -->
+        <apex:outputPanel rendered="{!objWrapper.listDistribution!=''}">
+            <br/><br/>
+            <div style="page-break-inside:avoid">
+                <span class="spanHeader">DISTRIBUTIONS</span>
+                <div>
+                    <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                        <apex:repeat value="{!objWrapper.listDistribution}" var="objDist">
+                            <tr style="">
+                                <td style="width:70%;">{!objDist.Account__r.Name}<br /> &nbsp; &nbsp; {!objDist.Comments__c}</td>
+                                <td style="width:15%" class="amountField">
+                                    <apex:outputText value="{0, Number, Currency}">
+                                        <apex:param value="{!objDist.Amount__c}" />
+                                    </apex:outputText>
+                                </td>
+                                <td style="width:15%" class="amountField">  </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+                </div>
+            </div>
+
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;margin-top:10px;">
+                <tr style="height:30px;">
+                    <td style="width:50%;" class=""></td>
+                    <td style="width:20%;" class=""></td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.totalDistribution}" />
+                        </apex:outputText>
+                    </td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!objWrapper.AAAGrossAmountAfterDistribution}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+        </apex:outputPanel>
+
+
+        <!-- Balance Due to Client or Alt Payee -->
+        <table style="vertical-align:top;width:100%;border-collapse:collapse;margin-top:30px;">
+            <tr style="height:30px;">
+                <td style="width:50%;" class="">
+                    <apex:outputPanel rendered="{!objWrapper.objResolution.Alternate_Payee__c!=null}">
+                        <span style="font-weight:bold;">Pay To:</span><br />
+                        {!objWrapper.objResolution.Alternate_Payee__r.name}<br />
+                        {!objWrapper.objResolution.Alternate_Payee_Reason__c}
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!objWrapper.objResolution.Alternate_Payee__c==null}">
+                        <span style="font-weight:bold;">Pay To:</span><br/>{!objWrapper.objResolution.litify_pm__Matter__r.litify_pm__Client__r.name}
+                    </apex:outputPanel>
+                </td>
+                <td style="width:20%;" class=""></td>
+                <td style="width:15%;" class="amountField"></td>
+                <td style="width:15%;border-top:solid 1px; border-bottom:solid 2px;font-weight:bold;" class="amountField">
+                    <apex:outputText rendered="{!objWrapper.AAAGrossAmountAfterDistribution<=0}" value="{0, Number, $0}">
+                        <apex:param value="{!objWrapper.zeroDollar}" />
+                    </apex:outputText>
+                    <apex:outputText rendered="{!objWrapper.AAAGrossAmountAfterDistribution>0}" value="{0, Number, Currency}">
+                        <apex:param value="{!objWrapper.AAAGrossAmountAfterDistribution}" />
+                    </apex:outputText>
+                </td>
+            </tr>
+        </table>
+
+
+        <!--Signature area | affirmation Text only printed -->
+        <div style="page-break-inside:avoid;margin-top:35px;">
+            <apex:outputText escape="false" value="{!objWrapper.affirmationText}"/>
+        </div>
+    </div>
+</apex:page>

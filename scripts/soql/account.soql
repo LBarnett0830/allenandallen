@@ -1,0 +1,2 @@
+SELECT Id, Name, litify_pm__lit_Amount_Due__c, Escrow__c, Resolution__r.Name 
+                FROM litify_pm__Lien__c

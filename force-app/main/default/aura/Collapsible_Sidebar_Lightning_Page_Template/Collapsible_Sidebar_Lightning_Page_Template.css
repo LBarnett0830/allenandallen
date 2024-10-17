@@ -1,0 +1,8 @@
+.THIS .sticky{
+  position: sticky;
+  top: 6rem;
+  z-index: 2;
+}
+.THIS .subheader{
+  margin-top: 1rem;
+}

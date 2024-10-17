@@ -1,0 +1,11 @@
+<apex:page standardController="litify_pm__Matter__c" extensions="WDI_MatterIframeExtension"> 
+<!--
+    CabinetNameValue: {!cabinetNameValue} 
+    FieldValue: {!fieldValue}
+    LookupValue: {!lookupValue} <br></br>
+    https://wdweb.allenandallen.com/login?query=@{!cabinetNameValue} ?{!fieldValue} {!lookupValue}
+-->
+<apex:iframe scrolling="true" 
+height="825px"  
+src="https://wdweb.allenandallen.com/login?query=?@{!cabinetNameValue} ?{!fieldValue} {!lookupValue}"/> 
+</apex:page>

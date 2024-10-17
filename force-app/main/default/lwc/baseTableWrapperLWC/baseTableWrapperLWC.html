@@ -1,0 +1,14 @@
+<template>
+    <div class="table-container">
+        <h2>{title}</h2>
+        <c-base-table-l-w-c columns={columns} tabledata={paginatedData}></c-base-table-l-w-c>
+    </div>
+    <div class="pagination-container">
+        <c-base-pagination 
+            current-page={currentPage} 
+            items-per-page={itemsPerPage} 
+            total-items={data.length}
+            onpagechange={handlePagination}>
+        </c-base-pagination>
+    </div>
+</template>

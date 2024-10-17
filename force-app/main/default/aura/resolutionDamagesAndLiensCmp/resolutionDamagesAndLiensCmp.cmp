@@ -1,0 +1,957 @@
+<aura:component controller="resolutionDamagesAndLiensController"  implements="force:lightningQuickAction,force:hasRecordId,force:appHostable"  >
+    <!-- this component is used in Damages and Liens Quick Action/ Button in Resolution
+    Developed by Sampath Suranji -->
+
+    <aura:html tag="style">
+        .slds-modal__container{
+        /*height : auto;*/
+        width: 90%;
+        max-width: 1500px;
+        }
+        .slds-modal__content{
+        height : auto !important;
+        max-height: unset !important;
+        }
+        .slds-modal__content{
+        height : auto !important;
+        max-height: unset !important;
+        }
+        .slds-modal__header{
+        background: #337AB7 !important; color: #fff;
+        }
+        .modal-body{
+        height : 100% !important;
+        max-height: 600px !important;
+        }
+
+        .slds-modal__footer{
+        display: none;
+        }
+        .confirmation{
+        display: block;
+        }
+        .footerToDisplay{
+        /* border-top: var(--lwc-borderWidthThick,2px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+        border-bottom-right-radius: var(--lwc-borderRadiusMedium,0.25rem);
+        border-bottom-left-radius: var(--lwc-borderRadiusMedium,0.25rem);
+        padding: var(--lwc-spacingSmall,0.75rem) var(--lwc-spacingMedium,1rem);
+        background-color: var(--lwc-colorBackground,rgb(243, 242, 242));
+        text-align: right;
+        box-shadow: var(--lwc-shadowDropDown,0 2px 3px 0 rgba(0, 0, 0, 0.16));*/
+        }
+        .tblTH{
+        padding-left: 7px !important;
+        }
+        @media only screen and (min-width: 992px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 600px !important;
+        }
+        }
+
+        /* Extra large devices (large laptops and desktops, 1200px and up) */
+        @media only screen and (min-width: 1200px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 700px !important;
+        }
+        }
+
+        /* Extra large devices (large laptops and desktops, 2000px and up) */
+        @media only screen and (min-width: 2000px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 800px !important;
+        }
+        }
+    </aura:html>
+
+
+    <aura:attribute name="resolutionWrapper" type="resolutionDamagesAndLiensWrapper"/>
+    <aura:attribute name="balanceAmount" type="decimal"/>
+    <aura:attribute name="showError" type="boolean"/>
+    <aura:attribute name="showExpenses" type="boolean" default="true"/>
+    <aura:attribute name="showSuccess" type="boolean"/>
+    <aura:attribute name="showSpinner" type="boolean"/>
+    <aura:attribute name="showConfirm" type="boolean"/>
+    <aura:attribute name="disableInput" type="boolean" default="false"/>
+    <aura:attribute name="disableInputOther" type="boolean" default="true"/>
+    <aura:attribute name="showSave" type="boolean" default="false"/>
+    <aura:attribute name="showConfirmToSaveAndPrint" type="boolean" default="false"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="amountWrittenOff" type="decimal"/>
+    <aura:attribute name="recordUrlBase" type="String"/>
+    <aura:attribute name="recordUrlBaseEnd" type="String"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="change" value="{!v.resolutionWrapper.writeOffAmount}" action="{!c.handleWriteOffChange}"/>
+
+
+
+
+    <aura:if isTrue="{!v.resolutionWrapper.objResolution.litify_pm__Matter__r.Name != null}">
+        <div class="slds-grid slds-wrap" id="mainDiv">
+
+            <div class="slds-col slds-large-size_1-of-1">
+
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-5">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Resolution</label>
+                            <div class="slds-form-element__control">
+                                {!v.resolutionWrapper.objResolution.Name}
+                            </div>
+                            <div class="slds-form-element__control" style="font-weight:bold;">
+                                {!v.resolutionWrapper.objResolution.Statement_Status__c}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-5">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Matter</label>
+                            <div class="slds-form-element__control">
+                                {!v.resolutionWrapper.objResolution.litify_pm__Matter__r.Name}
+                            </div>
+                            <div class="slds-form-element__control" >
+                                {!v.resolutionWrapper.objResolution.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-5">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Total Damages Due Amount</label>
+                            <div class="slds-form-element__control">
+                                <ui:outputCurrency value="{!v.resolutionWrapper.totalDamagesAmount}"/>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-5">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Total Liens Due Amount</label>
+                            <div class="slds-form-element__control">
+                                <ui:outputCurrency value="{!v.resolutionWrapper.totalLienesAmount}"/>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div style="margin-top:20px;">
+                    <lightning:tabset selectedTabId="Damages" variant="scoped">
+                        <lightning:tab  label="Damages" id="Damages" >
+                            <div>
+                                <div class="slds-page-header__col-details" style="margin-bottom:20px;">
+                                    <ul class="slds-page-header__detail-row">
+                                        <li class="slds-page-header__detail-block">
+                                            <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Available Damages</div>
+                                            <div class="slds-truncate" title="Unbilled lines">{!v.resolutionWrapper.availableDamages.length}</div>
+                                        </li>
+                                        <li class="slds-page-header__detail-block">
+                                            <aura:if isTrue="{!v.resolutionWrapper.objResolution.Statement_Status__c!='Final'}">
+                                                <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Selected Damages</div>
+                                                <div class="slds-truncate" title="Prebilled lines">{!v.resolutionWrapper.selectedDamages.length}</div>
+                                            </aura:if>
+
+                                        </li>
+                                    </ul>
+                                </div>
+                                <!--Available Damages-->
+                                <div class="slds-page-header">
+                                    <div class="slds-page-header__row">
+                                        <div class="slds-page-header__col-title">
+                                            <div class="slds-media">
+                                                <div class="slds-media__figure">
+
+                                                </div>
+                                                <div class="slds-media__body">
+                                                    <div class="slds-page-header__name">
+                                                        <div class="slds-page-header__name-title">
+                                                            <h1>
+                                                                <span class="slds-page-header__title slds-truncate">Damages not on any Resolution</span>
+                                                            </h1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                    <thead>
+                                    <tr class="slds-line-height_reset" style="height: 35px;">
+                                        <th class="slds-text-align_right " scope="col" style="width:30px; padding-right:5px">
+                                            <div class="slds-checkbox">
+                                                <input type="checkbox" name="chk" id="selectUnbilledAll" onchange="{!c.handleAllAvailableDamageSelect}" disabled="{!v.disableInput}"/>
+                                                <label class="slds-checkbox__label" for="selectUnbilledAll">
+                                                    <span class="slds-checkbox_faux"></span>
+                                                </label>
+                                            </div>
+
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Damage Name</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Name</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Provider</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Provider</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Payee</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Payee</span>
+                                            </div>
+                                        </th>
+                                        <th width="12%" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Balance Due</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Balance Due</span>
+                                            </div>
+                                        </th>
+                                        <th width="12%" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Type</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Type</span>
+                                            </div>
+                                        </th>
+                                        <th width="12%" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Verfiy Date</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Verify Date</span>
+                                            </div>
+                                        </th>
+                                        <th style="width:70px" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Escrow</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Escrow</span>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <aura:iteration items="{!v.resolutionWrapper.availableDamages}" var="damage">
+                                        <tr aria-selected="false" class="slds-hint-parent">
+                                            <td class="slds-text-align_right" role="gridcell">
+                                                <div class="slds-checkbox">
+                                                    <lightning:input type="checkbox"  value="{!damage.Id}" onchange="{!c.handleAvailableDamageSelect}" disabled="{!v.disableInput}"/>
+                                                </div>
+                                            </td>
+                                            <th scope="row">
+                                                <div class="slds-truncate" title="Name">
+                                                    <a href="{!v.recordUrlBase+ damage.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!damage.Name}</a>
+                                                </div>
+                                            </th>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Provider">
+                                                    <a href="{!v.recordUrlBase+ damage.litify_pm__Provider__r.litify_pm__Party__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!damage.litify_pm__Provider__r.litify_pm__Party__r.Name}</a>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Payee" >
+                                                    <ui:outputText value="{!damage.Party_Name__c}"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Amount Due" >
+                                                    <ui:outputCurrency value="{!damage.Balance_Due__c}"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Type" >
+                                                    <ui:outputText value="{!damage.litify_pm__Type__c}"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Verify Date" >
+                                                    <ui:outputDate value="{!damage.Damage_Verification_Completion_Time__c}" format="MM/dd/YYYY"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Escrow" >
+                                                    <ui:outputCheckbox value="{!damage.Escrow__c}"/>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </aura:iteration>
+                                    </tbody>
+                                </table>
+
+                                <br/><br/>
+
+                                <!--Selected Damages-->
+                                <aura:if isTrue="{!v.resolutionWrapper.objResolution.Statement_Status__c!='Final'}">
+                                    <div class="slds-page-header">
+                                        <div class="slds-page-header__row">
+                                            <div class="slds-page-header__col-title">
+                                                <div class="slds-media">
+                                                    <div class="slds-media__figure">
+
+                                                    </div>
+                                                    <div class="slds-media__body">
+                                                        <div class="slds-page-header__name">
+                                                            <div class="slds-page-header__name-title">
+                                                                <h1>
+                                                                    <span class="slds-page-header__title slds-truncate">Damages on this Resolution</span>
+                                                                </h1>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                        <thead>
+                                        <tr class="slds-line-height_reset" style="height: 35px;" >
+                                            <th class="slds-text-align_right" scope="col" style="width:30px">
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Damage Name</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Name</span>
+                                                </div>
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Provider</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Provider</span>
+                                                </div>
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Payee</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Payee</span>
+                                                </div>
+                                            </th>
+                                            <th width="12%" class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Balance Due</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Balance Due</span>
+                                                </div>
+                                            </th>
+                                            <th width="12%" class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Type</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Type</span>
+                                                </div>
+                                            </th>
+                                            <th width="12%" class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Verfiy Date</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Verify Date</span>
+                                                </div>
+                                            </th>
+                                            <th style="width:70px" class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Escrow</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Escrow</span>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <aura:iteration items="{!v.resolutionWrapper.selectedDamages}" var="damage">
+                                            <tr aria-selected="false" class="slds-hint-parent">
+
+                                                <td class="slds-text-align_right" role="gridcell">
+                                                    <div class="slds-checkbox">
+                                                        <lightning:input type="checkbox"  value="{!damage.Id}" onchange="{!c.handleSelectedDamageSelect}" disabled="{!v.disableInput}"/>
+                                                    </div>
+                                                </td>
+                                                <th scope="row">
+                                                    <div class="slds-truncate" title="Name">
+                                                        <a href="{!v.recordUrlBase+ damage.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!damage.Name}</a>
+                                                    </div>
+                                                </th>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Provider">
+                                                        <a href="{!v.recordUrlBase+ damage.litify_pm__Provider__r.litify_pm__Party__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!damage.litify_pm__Provider__r.litify_pm__Party__r.Name}</a>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Payee" >
+                                                        <ui:outputText value="{!damage.Party_Name__c}"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Balance Due" >
+                                                        <ui:outputCurrency value="{!damage.Balance_Due__c}"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Type" >
+                                                        <ui:outputText value="{!damage.litify_pm__Type__c}"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Verify Date" >
+                                                        <ui:outputDate value="{!damage.Damage_Verification_Completion_Time__c}" format="MM/dd/YYYY"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Escrow" >
+                                                        <ui:outputCheckbox value="{!damage.Escrow__c}"/>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                        </aura:iteration>
+                                        </tbody>
+                                    </table>
+                                </aura:if>
+
+                                <br/><br/>
+
+                                <!--Damages on other Resolutions-->
+                                <div class="slds-page-header">
+                                    <div class="slds-page-header__row">
+                                        <div class="slds-page-header__col-title">
+                                            <div class="slds-media">
+                                                <div class="slds-media__figure">
+
+                                                </div>
+                                                <div class="slds-media__body">
+                                                    <div class="slds-page-header__name">
+                                                        <div class="slds-page-header__name-title">
+                                                            <h1>
+                                                                <span class="slds-page-header__title slds-truncate">Damages on other Resolution</span>
+                                                            </h1>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                    <thead>
+                                    <tr class="slds-line-height_reset" style="height: 35px;" >
+                                        <th class="slds-text-align_right" scope="col" style="width:30px">
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Damage Name</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Name</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Provider</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Provider</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Resolution Name</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Resolution Name</span>
+                                            </div>
+                                        </th>
+                                        <th width="12%" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Balance Due</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Balance Due</span>
+                                            </div>
+                                        </th>
+                                        <th width="12%" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Type</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Type</span>
+                                            </div>
+                                        </th>
+                                        <th width="12%" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Verfiy Date</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Verify Date</span>
+                                            </div>
+                                        </th>
+                                        <th style="width:70px" class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Escrow</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Escrow</span>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <aura:iteration items="{!v.resolutionWrapper.usedDamages}" var="damage">
+                                        <tr aria-selected="false" class="slds-hint-parent">
+
+                                            <td class="slds-text-align_right" role="gridcell">
+                                                <div class="slds-checkbox">
+                                                    <lightning:input type="checkbox"  value="{!damage.Id}" onchange="{!c.handleSelectedDamageSelect}" disabled="{!v.disableInputOther}"/>
+                                                </div>
+                                            </td>
+                                            <th scope="row">
+                                                <div class="slds-truncate" title="Name">
+                                                    <a href="{!v.recordUrlBase+ damage.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!damage.Name}</a>
+                                                </div>
+                                            </th>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Provider">
+                                                    <a href="{!v.recordUrlBase+ damage.litify_pm__Provider__r.litify_pm__Party__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!damage.litify_pm__Provider__r.litify_pm__Party__r.Name}</a>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Resolution Name" >
+                                                    <!-- <ui:outputText value="{!damage.Resolution__r.Name}"/> -->
+                                                     <a href="{!v.recordUrlBase + damage.Resolution__c + v.recordUrlBaseEnd}" tabIndex="0" target="_blank">{!damage.Resolution__r.Name}</a>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Amount Due" >
+                                                    <ui:outputCurrency value="{!damage.Balance_Due__c}"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Type" >
+                                                    <ui:outputText value="{!damage.litify_pm__Type__c}"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Verify Date" >
+                                                    <ui:outputDate value="{!damage.Damage_Verification_Completion_Time__c}" format="MM/dd/YYYY"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Escrow" >
+                                                    <ui:outputCheckbox value="{!damage.Escrow__c}"/>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    </aura:iteration>
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                        </lightning:tab>
+
+                        <lightning:tab  label="Liens" id="Liens" >
+                            <div>
+                                <div class="slds-page-header__col-details" style="margin-bottom:20px;">
+                                    <ul class="slds-page-header__detail-row">
+                                        <li class="slds-page-header__detail-block">
+                                            <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of available Liens</div>
+                                            <div class="slds-truncate" title="Unbilled lines">{!v.resolutionWrapper.availableLienes.length}</div>
+                                        </li>
+                                        <li class="slds-page-header__detail-block">
+                                            <aura:if isTrue="{!v.resolutionWrapper.objResolution.Statement_Status__c!='Final'}">
+                                                <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of selected Liens</div>
+                                                <div class="slds-truncate" title="Prebilled lines">{!v.resolutionWrapper.selectedLienes.length}</div>
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.resolutionWrapper.objResolution.Statement_Status__c=='Final'}">
+                                                <!--<div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Billed  Write-Off Lines</div>
+                                                <div class="slds-truncate" title="Prebilled lines">{!v.resolutionWrapper.billedWriteoffs.length}</div>-->
+
+                                            </aura:if>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <!--Available Lienes-->
+                                    <div class="slds-page-header">
+                                        <div class="slds-page-header__row">
+                                            <div class="slds-page-header__col-title">
+                                                <div class="slds-media">
+                                                    <div class="slds-media__figure">
+
+                                                    </div>
+                                                    <div class="slds-media__body">
+                                                        <div class="slds-page-header__name">
+                                                            <div class="slds-page-header__name-title">
+                                                                <h1>
+                                                                    <span class="slds-page-header__title slds-truncate">Liens not on any Resolution</span>
+                                                                </h1>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                        <thead>
+                                        <tr class="slds-line-height_reset" style="height: 35px;">
+                                            <th class="slds-text-align_right " scope="col" style="width:30px; padding-right:5px">
+                                                <div class="slds-checkbox">
+                                                    <input type="checkbox" name="chkWriteoff" id="selectUnbilledWriteOffAll" onchange="{!c.handleAllAvailableLienSelect}" disabled="{!v.disableInput}"/>
+                                                    <label class="slds-checkbox__label" for="selectUnbilledWriteOffAll">
+                                                        <span class="slds-checkbox_faux"></span>
+                                                    </label>
+                                                </div>
+
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Name</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Name</span>
+                                                </div>
+                                            </th>
+
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Payee</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Payee</span>
+                                                </div>
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Amount Due</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Amount Due</span>
+                                                </div>
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Date</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Date</span>
+                                                </div>
+                                            </th>
+                                            <th style="width:70px" class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Escrow</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Escrow</span>
+                                                </div>
+                                            </th>
+
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <aura:iteration items="{!v.resolutionWrapper.availableLienes}" var="lien">
+                                            <tr aria-selected="false" class="slds-hint-parent">
+
+                                                <td class="slds-text-align_right" role="gridcell">
+                                                    <div class="slds-checkbox">
+                                                        <lightning:input type="checkbox"  value="{!lien.Id}" onchange="{!c.handleAvailableLienSelect}" disabled="{!v.disableInput}"/>
+                                                    </div>
+                                                </td>
+                                                <th scope="row">
+                                                    <div class="slds-truncate" title="Name">
+                                                        <a href="{!v.recordUrlBase+ lien.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!lien.Name}</a>
+                                                    </div>
+                                                </th>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Payee">
+                                                        <a href="{!v.recordUrlBase+ lien.Payee_Party__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!lien.Payee_Party__r.Name}</a>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Amount" >
+                                                        <ui:outputCurrency value="{!lien.litify_pm__lit_Amount_Due__c}"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Date" >
+                                                        <ui:outputDate value="{!lien.Date_Issued__c}" format="MM/dd/YYYY"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Escrow" >
+                                                        <ui:outputCheckbox value="{!lien.Escrow__c}"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                        </tbody>
+                                    </table>
+
+                                    <br/><br/>
+
+                                    <!--selected Lienes-->
+                                    <aura:if isTrue="{!v.resolutionWrapper.objResolution.Statement_Status__c!='Final'}">
+                                        <div class="slds-page-header">
+                                            <div class="slds-page-header__row">
+                                                <div class="slds-page-header__col-title">
+                                                    <div class="slds-media">
+                                                        <div class="slds-media__figure">
+
+                                                        </div>
+                                                        <div class="slds-media__body">
+                                                            <div class="slds-page-header__name">
+                                                                <div class="slds-page-header__name-title">
+                                                                    <h1>
+                                                                        <span class="slds-page-header__title slds-truncate">Liens on this Resolution</span>
+                                                                    </h1>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                            <thead>
+                                            <tr class="slds-line-height_reset" style="height: 35px;" >
+                                                <th class="slds-text-align_right" scope="col" style="width:30px">
+
+                                                </th>
+                                                <th class="tblTH" scope="col" >
+                                                    <div class="slds-truncate slds-assistive-text" title="Actions">Name</div>
+                                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                        <span class="slds-truncate" title="Name">Name</span>
+                                                    </div>
+                                                </th>
+
+                                                <th class="tblTH" scope="col" >
+                                                    <div class="slds-truncate slds-assistive-text" title="Actions">Payee</div>
+                                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                        <span class="slds-truncate" title="Name">Payee</span>
+                                                    </div>
+                                                </th>
+                                                <th class="tblTH" scope="col" >
+                                                    <div class="slds-truncate slds-assistive-text" title="Actions">Amount Due</div>
+                                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                        <span class="slds-truncate" title="Name">Amount Due</span>
+                                                    </div>
+                                                </th>
+                                                <th class="tblTH" scope="col" >
+                                                    <div class="slds-truncate slds-assistive-text" title="Actions">Date</div>
+                                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                        <span class="slds-truncate" title="Name">Date</span>
+                                                    </div>
+                                                </th>
+                                                <th style="width:70px" class="tblTH" scope="col" >
+                                                    <div class="slds-truncate slds-assistive-text" title="Actions">Escrow</div>
+                                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                        <span class="slds-truncate" title="Name">Escrow</span>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <aura:iteration items="{!v.resolutionWrapper.selectedLienes}" var="lien">
+                                                <tr aria-selected="false" class="slds-hint-parent">
+
+                                                    <td class="slds-text-align_right" role="gridcell">
+                                                        <lightning:input type="checkbox"  value="{!lien.Id}" onchange="{!c.handleSelectedLienSelect}"  disabled="{!v.disableInput}"/>
+
+                                                    </td>
+                                                    <th scope="row">
+                                                        <div class="slds-truncate" title="Name">
+                                                            <a href="{!v.recordUrlBase+ lien.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!lien.Name}</a>
+
+                                                        </div>
+                                                    </th>
+
+                                                    <td role="gridcell">
+                                                        <div class="slds-truncate" title="Payee">
+                                                            <a href="{!v.recordUrlBase+ lien.Payee_Party__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!lien.Payee_Party__r.Name}</a>
+                                                        </div>
+                                                    </td>
+                                                    <td role="gridcell">
+                                                        <div class="slds-truncate" title="Amount" >
+                                                            <ui:outputCurrency value="{!lien.litify_pm__lit_Amount_Due__c}"/>
+                                                        </div>
+                                                    </td>
+                                                    <td role="gridcell">
+                                                        <div class="slds-truncate" title="Date" >
+                                                            <ui:outputDate value="{!lien.Date_Issued__c}" format="MM/dd/YYYY"/>
+                                                        </div>
+                                                    </td>
+                                                    <td role="gridcell">
+                                                        <div class="slds-truncate" title="Escrow" >
+                                                            <ui:outputCheckbox value="{!lien.Escrow__c}"/>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+                                            </aura:iteration>
+                                            </tbody>
+                                        </table>
+                                    </aura:if>
+
+                                    <br/><br/>
+
+                                    <!--Liens on other Resolutions-->
+                                    <div class="slds-page-header">
+                                        <div class="slds-page-header__row">
+                                            <div class="slds-page-header__col-title">
+                                                <div class="slds-media">
+                                                    <div class="slds-media__figure">
+
+                                                    </div>
+                                                    <div class="slds-media__body">
+                                                        <div class="slds-page-header__name">
+                                                            <div class="slds-page-header__name-title">
+                                                                <h1>
+                                                                    <span class="slds-page-header__title slds-truncate">Liens on other Resolutions</span>
+                                                                </h1>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                        <thead>
+                                        <tr class="slds-line-height_reset" style="height: 35px;">
+                                            <th class="slds-text-align_right " scope="col" style="width:30px; padding-right:5px">
+                                                <div class="slds-checkbox">
+                                                    <input type="checkbox" name="chkWriteoff" id="selectUnbilledWriteOffAll" disabled="{!v.disableInputOther}"/>
+                                                    <label class="slds-checkbox__label" for="selectUnbilledWriteOffAll">
+                                                        <span class="slds-checkbox_faux"></span>
+                                                    </label>
+                                                </div>
+
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Name</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Name</span>
+                                                </div>
+                                            </th>
+
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Resolution Name</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Resolution Name</span>
+                                                </div>
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Amount Due</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Amount Due</span>
+                                                </div>
+                                            </th>
+                                            <th class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Date</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Date</span>
+                                                </div>
+                                            </th>
+                                            <th style="width:70px" class="tblTH" scope="col" >
+                                                <div class="slds-truncate slds-assistive-text" title="Actions">Escrow</div>
+                                                <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                    <span class="slds-truncate" title="Name">Escrow</span>
+                                                </div>
+                                            </th>
+
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <aura:iteration items="{!v.resolutionWrapper.usedLienes}" var="lien">
+                                            <tr aria-selected="false" class="slds-hint-parent">
+
+                                                <td class="slds-text-align_right" role="gridcell">
+                                                    <div class="slds-checkbox">
+                                                        <lightning:input type="checkbox"  value="{!lien.Id}" disabled="{!v.disableInputOther}"/>
+                                                    </div>
+                                                </td>
+                                                <th scope="row">
+                                                    <div class="slds-truncate" title="Name">
+                                                        <a href="{!v.recordUrlBase+ lien.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!lien.Name}</a>
+                                                    </div>
+                                                </th>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Resolution Name">
+                                                        <a href="{!v.recordUrlBase+ lien.Resolution__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!lien.Resolution__r.Name}</a>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Amount" >
+                                                        <ui:outputCurrency value="{!lien.litify_pm__lit_Amount_Due__c}"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Date" >
+                                                        <ui:outputDate value="{!lien.Date_Issued__c}" format="MM/dd/YYYY"/>
+                                                    </div>
+                                                </td>
+                                                <td role="gridcell">
+                                                    <div class="slds-truncate" title="Escrow" >
+                                                        <ui:outputCheckbox value="{!lien.Escrow__c}"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+                            </div>
+
+                        </lightning:tab>
+
+                    </lightning:tabset>
+
+                </div>
+
+
+            </div>
+        </div>
+    </aura:if>
+
+
+
+    <aura:if isTrue="{!v.showSpinner}">
+        <div id="divLoading" >
+            <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                <div class="slds-spinner_container slds-is-fixed">
+                    <div role="status" class="slds-spinner slds-spinner_medium">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+
+    <lightning:spinner aura:id="spinner" class="slds-hide" variant="brand" size="large"/>
+
+    <aura:if isTrue="{!v.showSave ==true}">
+
+        <div class="slds-docked-form-footer footerToDisplay">
+            <button type="button" class="slds-button slds-button--neutral" onclick="{!c.handleCancel}">Cancel</button>
+            <button type="button" class="slds-button slds-button--brand" onclick="{!c.showConfirmation}">Save</button>
+        </div>
+
+    </aura:if>
+
+    <aura:if isTrue="{!v.showSave==false}">
+        <div class="slds-docked-form-footer footerToDisplay">
+            <button type="button" class="slds-button slds-button--brand" onclick="{!c.handleCancel}">Cancel</button>
+        </div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.showConfirm}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to save</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <center><p>Do you want to save the Resolution?
+                        </p>
+                    </center>
+                    <br/>
+                    <footer class="slds-modal__footer confirmation">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                        <button class="slds-button slds-button_brand" onclick="{!c.handleSave}">Yes</button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+
+
+
+</aura:component>

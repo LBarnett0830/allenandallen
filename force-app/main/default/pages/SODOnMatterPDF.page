@@ -1,0 +1,535 @@
+<apex:page controller="SODOnMatterPDFController" showHeader="false" applyBodyTag="false" renderAs="pdf">
+    <!--Statement of Damages --->
+    <head>
+        <style type="text/css" media="print">
+            @page:first {
+            
+            @bottom-right {
+            content: element(footer);
+            }
+            @bottom-left {
+            content: element(footer-left);
+            }
+            
+            
+            
+            
+            }
+            @page {
+            
+            @bottom-right {
+            content: element(footer);
+            }
+            @bottom-left {
+            content: element(footer-left);
+            }
+            
+            
+            
+            }
+            
+            div.footer-left {
+            display: block;
+            position: running(footer-left);
+            text-align: left;
+            padding-top: 5px;
+            }
+            div.footer {
+            display: block;
+            padding-top: 5px;
+            position: running(footer);
+            text-align:right;
+            }
+            .pagenumber:before {
+            content: counter(page);
+            }
+            .pagecount:before {
+            content: counter(pages);
+            }
+            div.logo{
+            text-align:center;top:-500px !important;display:block;
+            }
+            .tdHeader{
+            background-color:rgb(221,221,221);
+            font-weight:bold;
+            
+            }
+            .tblDmgTd{
+            background-color:rgb(221,221,221);
+            }
+            .TD1{
+            width:50%;
+            }
+            .TD2{
+            width:20%;
+            }
+            .TD3{
+            width:12%;
+            }
+            .TD4{
+            width:18%;
+            }
+            .headerTD1{
+            width:10%;font-weight:bold;
+            }
+            .headerTD2{
+            width:23%;
+            }
+            .headerTD3{
+            width:13%;font-weight:bold;
+            }
+            .headerTD4{
+            width:16%;
+            }
+            .headerTD5{
+            width:17%;font-weight:bold;
+            }
+            .headerTD6{
+            width:21%;
+            }
+            .amountField{
+            text-align:right;
+            }
+            .content {
+            font-size: 10pt;
+            }
+            .spanHeader {
+            background-color:rgb(221,221,221);
+            font-weight:bold;
+            width:99%;
+            display:block;
+            padding:5px;
+            margin-bottom:11px;
+            }
+        </style>
+    </head>
+    
+    
+    <div class="header" >
+        
+    </div>
+    
+    <div class="footer">
+        <div style="font-size: 10pt;">
+            Page <span class="pagenumber"/> of <span class="pagecount" renderAs="pdf"/>
+        </div>
+    </div>
+    <div class="footer-left">
+        <div style="font-size: 10pt;">
+            <!--{!objWrapper.footer}-->
+        </div>
+    </div>
+    
+    <div class="content" style="font-size: 10pt;">
+        <!--Header will be available only 1st Page-->
+        <div class="logo" style="text-align:center; padding-top:5px;">
+            <apex:image url="{!URLFOR($Resource.Logo_for_Statements, 'AAA_Logo.png')}" width="300px;" height="75px;"/>
+        </div>
+        
+        <div style="font-size: 10pt;">
+            <div style="text-align:center !important;height: 50px;">
+                <span style="text-align:center; font-weight:bold; font-size:22px;">{!header}</span>
+            </div>
+            
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr>
+                    <td class="headerTD1">
+                        Case:
+                    </td>
+                    <td class="headerTD2">
+                        {!objMatter.Name}
+                    </td>
+                    
+                    <td class="headerTD3">  </td>
+                    <td class="headerTD4">                        
+                        
+                    </td> <td style="font-weight:bold;" class="headerTD5">
+                    
+                    </td>
+                    <td class="headerTD6"> </td>
+                    
+                </tr>
+                
+                <tr>
+                    <td class="headerTD3">
+                        DOI:
+                    </td>
+                    <td class="headerTD4">
+                        {!dateOfIncident}
+                        
+                    </td>
+                    
+                    <td style="font-weight:bold;" class="headerTD5">
+                        Attorney:
+                    </td>
+                    <td class="headerTD6">
+                        <apex:outputText value="{!objMatter.litify_pm__Principal_Attorney__r.Name}" />
+                    </td>
+                    
+                    <td  style="font-weight:bold;width:150px"  class="headerTD5">
+                        
+                    </td>
+                    <td class="headerTD6">
+                        
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td class="headerTD3">
+                        Case Type:
+                    </td>
+                    <td class="headerTD4">
+                        {!objMatter.litify_pm__Case_Type__r.Name}
+                        
+                    </td>
+                    
+                    <td style="font-weight:bold;" class="headerTD5">
+                        Legal Assistant:
+                    </td>
+                    <td class="headerTD6">
+                        <apex:outputText value="{!objMatter.Legal_Assistant__r.Name}" />
+                    </td>
+                    
+                    <td  style="font-weight:bold;width:150px"  class="headerTD5">
+                        
+                    </td>
+                    <td class="headerTD6">
+                        
+                    </td>
+                </tr>
+                
+            </table>
+            <br/>
+            
+            <div style="height:5px;width:100%;background-color: black;">
+            </div>
+            
+        </div>
+        
+        <!-- TREATMENT CHARGES-->
+        <div style="margin-top: 20px;">
+            <div style="background-color:rgb(221,221,221);vertical-align:center;height:5px;">
+                <span style="font-weight:bold; " >TREATMENT CHARGES</span>
+            </div> 
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                <tr style="padding-top: 3px;height:20px;">
+                    <td style="width:35%;" class="tdHeader"> </td>
+                    <td style="width:25%;" class="tdHeader"> </td>
+                    <td style="width:25%;" class="tdHeader"></td>
+                    <td style="width:15%;" class="tdHeader amountField"> </td>
+                    
+                </tr> 
+                <apex:repeat value="{!listTreatmentWrp}" var="objDmg">
+                    
+                    <tr style="width:100%;">
+                        <td style="width:35%;padding-top:10px;vertical-align:top;">
+                            {!objDmg.damageName}
+                        </td>
+                        
+                        <td style="width:25%;vertical-align:top;padding-top:10px;">
+                            {!objDmg.damageType}
+                        </td>
+                        <td style="width:25%;padding-top:10px;vertical-align:top;" class="">
+                            <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                <apex:param value="{!objDmg.serviceStartDate}"/>
+                            </apex:outputText> <apex:outputText rendered="{!objDmg.serviceEndDate<>null}"> -</apex:outputText>  <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                            <apex:param value="{!objDmg.serviceEndDate}"/>
+                            </apex:outputText>
+                        </td>
+                        
+                        <td style="width:15%;padding-top:10px;vertical-align:top;" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!objDmg.billedAmount}" />
+                            </apex:outputText>
+                        </td>
+                        
+                        
+                    </tr>
+                    <tr style="">
+                        <td style="padding-left:20px; ">{!objDmg.comments} </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </apex:repeat>
+                
+            </table>
+            <apex:outputPanel rendered="{!listTreatmentWrp==null}">
+                <table style="width:100%">
+                    <tr style="width:100%">
+                        <td style="width:50%">-</td><td style="width:20%;text-align:right;">-</td><td style="width:15%;text-align:right;">-</td><td style="width:15%"></td>
+                    </tr>
+                </table>
+                
+            </apex:outputPanel>
+            
+        </div>
+        <br/>
+        <!-- Total TREATMENT CHARGES-->
+        <div style="page-break-inside:avoid">
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr style="width:100%;">
+                    <td style="width:50%;" class=""></td>
+                    <td style="width:20%;" class=""></td>
+                    <td style="width:15%;" > &nbsp;</td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!totalTreatementCharges}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+        
+        
+        <!-- FUTURE TREATMENT CHARGES-->
+        <div style="margin-top: 20px;">
+            <div style="background-color:rgb(221,221,221);vertical-align:center;height:5px;">
+                <span style="font-weight:bold; " >FUTURE TREATMENT CHARGES</span>
+            </div> 
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                <tr style="padding-top: 3px;height:20px;">
+                    <td style="width:70%;" class="tdHeader"> </td>
+                    <td style="width:15%;" class="tdHeader"> </td>
+<!--<td style="width:25%;" class="tdHeader"></td>-->
+                    <td style="width:15%;" class="tdHeader amountField"> </td>
+                    
+                </tr> 
+                <apex:repeat value="{!listFutureTreatmentWrp}" var="objDmg">
+                    
+                    <tr style="width:100%;">
+                        <td style="width:70%;padding-top:10px;vertical-align:top;">
+                            {!objDmg.damageName}
+                        </td>
+                        <td style="width:15%;"></td>
+                        <!--<td style="width:25%;vertical-align:top;padding-top:10px;">
+{!objDmg.damageType}
+</td>
+<td style="width:25%;padding-top:10px;vertical-align:top;" class="">
+<apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+<apex:param value="{!objDmg.serviceStartDate}"/>
+</apex:outputText> <apex:outputText rendered="{!objDmg.serviceEndDate<>null}"> -</apex:outputText>  <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+<apex:param value="{!objDmg.serviceEndDate}"/>
+</apex:outputText>
+</td>
+-->
+                        <td style="width:15%;padding-top:10px;vertical-align:top;" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!objDmg.billedAmount}" />
+                            </apex:outputText>
+                        </td>
+                        
+                        
+                    </tr>
+                    <tr style="">
+                        <td style="padding-left:20px; ">{!objDmg.comments} </td>
+                        <td></td>
+<!--<td></td>-->
+                        <td></td>
+                    </tr>
+                </apex:repeat>
+                
+            </table>
+            <apex:outputPanel rendered="{!listFutureTreatmentWrp==null}">
+                <table style="width:100%">
+                    <tr style="width:100%">
+                        <td style="width:50%">-</td><td style="width:20%;text-align:right;">-</td><td style="width:15%;text-align:right;">-</td><td style="width:15%"></td>
+                    </tr>
+                </table>
+                
+            </apex:outputPanel>
+            
+        </div>
+        <br/>
+        <!-- Total FUTURE TREATMENT CHARGES-->
+        <div style="page-break-inside:avoid">
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr style="width:100%;">
+                    <td style="width:50%;" class=""></td>
+                    <td style="width:20%;" class=""></td>
+                    <td style="width:15%;" > &nbsp;</td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!totalFutureTreatementCharges}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+        
+        
+        <!-- WAGE LOSS -->
+        <div style="margin-top: 20px;">
+            <div style="background-color:rgb(221,221,221);vertical-align:center;height:5px;">
+                <span style="font-weight:bold; " >WAGE LOSS</span>
+            </div> 
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                <tr style="padding-top: 3px;height:20px;">
+                    <td style="width:70%;" class="tdHeader"> </td>
+                    <td style="width:15%;" class="tdHeader"> </td>
+<!--<td style="width:25%;" class="tdHeader"></td>-->
+                    <td style="width:15%;" class="tdHeader amountField"> </td>
+                    
+                </tr> 
+                <apex:repeat value="{!listWageLossWrp}" var="objDmg">
+                    
+                    <tr style="width:100%;">
+                        <td style="width:85%;padding-top:10px;vertical-align:top;">
+                            {!objDmg.damageName}
+                        </td>
+                        <td style="width:15%;"></td>
+                        <!--<td style="width:25%;vertical-align:top;padding-top:10px;">
+{!objDmg.damageType}
+</td>
+<td style="width:25%;padding-top:10px;vertical-align:top;" class="">
+<apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+<apex:param value="{!objDmg.serviceStartDate}"/>
+</apex:outputText> <apex:outputText rendered="{!objDmg.serviceEndDate<>null}"> -</apex:outputText>  <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+<apex:param value="{!objDmg.serviceEndDate}"/>
+</apex:outputText>
+</td>-->
+                        
+                        <td style="width:15%;padding-top:10px;vertical-align:top;" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!objDmg.billedAmount}" />
+                            </apex:outputText>
+                        </td>
+                        
+                        
+                    </tr>
+                    <tr style="">
+                        <td style="padding-left:20px; ">{!objDmg.comments} </td>
+                        <td></td>
+<!--<td></td>-->
+                        <td></td>
+                    </tr>
+                </apex:repeat>
+                
+            </table>
+            <apex:outputPanel rendered="{!listWageLossWrp==null}">
+                <table style="width:100%">
+                    <tr style="width:100%">
+                        <td style="width:50%">-</td><td style="width:20%;text-align:right;">-</td><td style="width:15%;text-align:right;">-</td><td style="width:15%"></td>
+                    </tr>
+                </table>
+                
+            </apex:outputPanel>
+            
+        </div>
+        <br/>
+        <!-- Total WAGE LOSS-->
+        <div style="page-break-inside:avoid">
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr style="width:100%;">
+                    <td style="width:50%;" class=""></td>
+                    <td style="width:20%;" class=""></td>
+                    <td style="width:15%;" > &nbsp;</td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!totalWageLoss}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+        
+        
+        <!-- MISC -->
+        <div style="margin-top: 20px;">
+            <div style="background-color:rgb(221,221,221);vertical-align:center;height:5px;">
+                <span style="font-weight:bold; " >MISC</span>
+            </div> 
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;table-layout: fixed;overflow-wrap: break-word;">
+                <tr style="padding-top: 3px;height:20px;">
+                    <td style="width:35%;" class="tdHeader"> </td>
+                    <td style="width:25%;" class="tdHeader"> </td>
+                    <td style="width:25%;" class="tdHeader"></td>
+                    <td style="width:15%;" class="tdHeader amountField"> </td>
+                    
+                </tr> 
+                <apex:repeat value="{!listMiscWrp}" var="objDmg">
+                    
+                    <tr style="width:100%;">
+                        <td style="width:35%;padding-top:10px;vertical-align:top;">
+                            {!objDmg.damageName}
+                        </td>
+                        
+                        <td style="width:25%;vertical-align:top;padding-top:10px;">
+                            {!objDmg.damageType}
+                        </td>
+                        <td style="width:25%;padding-top:10px;vertical-align:top;" class="">
+                            <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                                <apex:param value="{!objDmg.serviceStartDate}"/>
+                            </apex:outputText> <apex:outputText rendered="{!objDmg.serviceEndDate<>null}"> -</apex:outputText>  <apex:outputText value="{0,date,MM'/'dd'/'yyyy}" >
+                            <apex:param value="{!objDmg.serviceEndDate}"/>
+                            </apex:outputText>
+                        </td>
+                        
+                        <td style="width:15%;padding-top:10px;vertical-align:top;" class="amountField">
+                            <apex:outputText value="{0, Number, Currency}">
+                                <apex:param value="{!objDmg.billedAmount}" />
+                            </apex:outputText>
+                        </td>
+                        
+                        
+                    </tr>
+                    <tr style="">
+                        <td style="padding-left:20px; "><apex:outputField value="{!objDmg.objDmg.litify_pm__Comments__c}"/> </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </apex:repeat>
+                
+            </table>
+            <apex:outputPanel rendered="{!listMiscWrp==null}">
+                <table style="width:100%">
+                    <tr style="width:100%">
+                        <td style="width:50%">-</td><td style="width:20%;text-align:right;">-</td><td style="width:15%;text-align:right;">-</td><td style="width:15%"></td>
+                    </tr>
+                </table>
+                
+            </apex:outputPanel>
+            
+        </div>
+        <br/>
+        <!-- Total MISC-->
+        <div style="page-break-inside:avoid">
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr style="width:100%;">
+                    <td style="width:50%;" class=""></td>
+                    <td style="width:20%;" class=""></td>
+                    <td style="width:15%;" > &nbsp;</td>
+                    <td style="width:15%;border-top:solid 1px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!totalMisc}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+        
+        <!-- Total of Damage-->
+        <div style="page-break-inside:avoid;padding-top:30px;">
+            <table style="vertical-align: top;width:100%;border-collapse: collapse;">
+                <tr style="width:100%;">
+                    <td style="width:60%;" class=""></td>
+                    
+                    <td style="width:25%;text-align:right;font-weight:bold;" > TOTAL DAMAGES:</td>
+                    <td style="width:15%;border-top:solid 2px;font-weight:bold;" class="amountField">
+                        <apex:outputText value="{0, Number, Currency}">
+                            <apex:param value="{!totalDmgAmount}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+            
+        </div>
+        
+        
+    </div>
+</apex:page>

@@ -1,0 +1,344 @@
+<apex:page controller="requestForDmgVerificationXLSController" readOnly="true" standardStylesheets="false" contentType="application/vnd.ms-excel#{!filename}.xls">
+    {!xmlheader}
+
+    <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+              xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:x="urn:schemas-microsoft-com:office:excel"
+              xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+              xmlns:html="http://www.w3.org/TR/REC-html40">
+        <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+            <Author></Author>
+            <LastAuthor></LastAuthor>
+            <Company></Company>
+            <Version>1</Version>
+        </DocumentProperties>
+
+        <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+            <WindowHeight>16000</WindowHeight>
+            <WindowWidth>20480</WindowWidth>
+            <WindowTopX>400</WindowTopX>
+            <WindowTopY>400</WindowTopY>
+            <ProtectStructure>False</ProtectStructure>
+            <ProtectWindows>False</ProtectWindows>
+        </ExcelWorkbook>
+        <Styles>
+            <Style ss:ID="Default" ss:Name="Normal">
+                <Alignment ss:Vertical="Bottom"/>
+                <Borders/>
+                <Font/>
+                <Interior/>
+                <NumberFormat/>
+                <Protection/>
+            </Style>
+            <Style ss:ID="s01">
+                <Alignment ss:Vertical="Bottom"/>
+                <Font ss:Size="9" ss:Bold="1" ss:FontName="Helvetica" x:Family="Swiss"/>
+                <Interior ss:Color="#e1ebe4" ss:Pattern="Solid"/>
+            </Style>
+
+            <Style ss:ID="normalText">
+                <Alignment ss:Vertical="Bottom"/>
+                <Font ss:Size="9" ss:FontName="Helvetica" x:Family="Swiss"/>
+
+            </Style>
+            <Style ss:ID="boldText">
+                <Alignment ss:Vertical="Bottom"/>
+                <Font ss:Size="9" ss:Bold="1" ss:FontName="Helvetica" x:Family="Swiss"/>
+
+            </Style>
+            <Style ss:ID="headerText">
+                <Alignment ss:Vertical="Bottom"/>
+                <Font ss:Size="11" ss:Bold="1" ss:FontName="Helvetica" x:Family="Swiss"/>
+
+            </Style>
+        </Styles>
+
+        <Worksheet ss:Name="Damage Verifications">
+
+            <Table ss:ExpandedColumnCount="50" x:FullColumns="1"
+                   x:FullRows="1" ss:DefaultColumnWidth="100">
+
+
+                <Column ss:AutoFitWidth="0" ss:Width="210"/>
+                <Column ss:AutoFitWidth="0" ss:Width="200"/>
+                <Column ss:AutoFitWidth="0" ss:Width="200"/>
+                <Column ss:AutoFitWidth="0" ss:Width="150"/>
+                <Column ss:AutoFitWidth="0" ss:Width="125"/>
+                <Column ss:AutoFitWidth="0" ss:Width="400"/>
+                <Row ss:Height="16">
+                    <Cell ss:StyleID="headerText">
+                        <Data ss:Type="String">{!reportHeader}:</Data>
+                    </Cell>
+                    <Cell ss:StyleID="boldText">
+                        <Data ss:Type="String">{!userName}</Data>
+                    </Cell>
+                </Row>
+
+                <!--Headers-->
+                <Row ss:Height="16">
+                    <Cell ss:StyleID="s01"><Data ss:Type="String">Provider</Data></Cell>
+                    <Cell ss:StyleID="s01"><Data ss:Type="String">Client</Data></Cell>
+                    <Cell ss:StyleID="s01"><Data ss:Type="String">Damage </Data></Cell>
+                    <Cell ss:StyleID="s01"><Data ss:Type="String">Dates </Data></Cell>
+                    <Cell ss:StyleID="s01"><Data ss:Type="String">Amounts </Data></Cell>
+                    <Cell ss:StyleID="s01"><Data ss:Type="String">Comments </Data></Cell>
+                </Row>
+
+                <apex:repeat value="{!listReqWrapper}" var="obj">
+                    <!--1st Row Provider / Client / Matter / Start Date/ Amount Billed/ Comments-->
+                    <Row ss:Height="16">
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.providerName}</Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.objFirstClientWrp.clientName} </Data></Cell>
+                        <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!obj.objFirstClientWrp.objFirstDamage.litify_pm__Matter__c}"><Data ss:Type="String">{!obj.objFirstClientWrp.objFirstDamage.litify_pm__Matter__r.Name}
+                            </Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">Svc Start -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                    <apex:param value="{!obj.objFirstClientWrp.objFirstDamage.litify_pm__Service_Start_Date__c}"/></apex:outputText>
+                            </Data>
+                        </Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">Bill - {!obj.objFirstClientWrp.objFirstDamage.litify_pm__Amount_Billed__c}</Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.objFirstClientWrp.objFirstDamage.Accounting_Comments__c}</Data></Cell>
+                    </Row>
+
+                    <!--2nd-->
+                    <Row ss:Height="16">
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.providerBillingPhone}</Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.objFirstClientWrp.clientAddress} </Data></Cell>
+                        <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!obj.objFirstClientWrp.objFirstDamage.Id}"><Data ss:Type="String">{!obj.objFirstClientWrp.objFirstDamage.Name}</Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">Svc End -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                    <apex:param value="{!obj.objFirstClientWrp.objFirstDamage.litify_pm__Service_End_Date__c}"/></apex:outputText>
+                            </Data>
+                        </Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">Paid - {!obj.objFirstClientWrp.objFirstDamage.litify_pm__Amount_Paid__c}</Data></Cell>
+                    </Row>
+
+                    <!--3rd-->
+                    <Row ss:Height="16">
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.providerPhone}</Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">
+                                <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                    <apex:param value="{!obj.objFirstClientWrp.clientDOB}"/></apex:outputText>
+                            </Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.objFirstClientWrp.objFirstDamage.Account__c}</Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">Last Verify -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                    <apex:param value="{!obj.objFirstClientWrp.objFirstDamage.Damage_Verification_Request_Date__c}"/></apex:outputText>
+                            </Data>
+                        </Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String">Bal - {!obj.objFirstClientWrp.objFirstDamage.Balance_Due__c}</Data></Cell>
+                    </Row>
+
+                    <!--4th-->
+                    <apex:outputPanel layout="none" rendered="{!obj.objFirstClientWrp.clientSSN<>null}">
+                        <Row ss:Height="16">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">{!obj.objFirstClientWrp.clientSSN}</Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                        </Row>
+                    </apex:outputPanel>
+
+                    <!--Print blank line when SSN available-->
+                    <!--<apex:outputPanel layout="none" rendered="{!and(obj.objFirstClientWrp.clientSSN<>null,obj.objFirstClientWrp.listDamages.Size>0)}">-->
+                    <Row ss:Height="48">
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                    </Row>
+                    <!-- </apex:outputPanel>-->
+
+                    <apex:repeat value="{!obj.objFirstClientWrp.listDamages}" var="objDmg">
+                        <Row ss:Height="16">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!objDmg.litify_pm__Matter__c}"><Data ss:Type="String">{!objDmg.litify_pm__Matter__r.Name}
+                                </Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">
+                                    <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">Svc Start -&nbsp;<apex:param value="{!objDmg.litify_pm__Service_Start_Date__c}"/></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Bill - {!objDmg.litify_pm__Amount_Billed__c}</Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objDmg.Accounting_Comments__c}</Data></Cell>
+
+                        </Row>
+                        <Row ss:Height="16">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!objDmg.Id}"><Data ss:Type="String">{!objDmg.Name}</Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Svc End -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                        <apex:param value="{!objDmg.litify_pm__Service_End_Date__c}"/></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Paid - {!objDmg.litify_pm__Amount_Paid__c}</Data></Cell>
+                        </Row>
+                        <Row ss:Height="16">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objDmg.Account__c}</Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Last Verify -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                        <apex:param value="{!objDmg.Damage_Verification_Request_Date__c}"/></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Bal - {!objDmg.Balance_Due__c}</Data></Cell>
+
+                        </Row>
+                        <Row ss:Height="48">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                        </Row>
+
+                    </apex:repeat>
+
+
+                    <apex:repeat value="{!obj.listClientWrapper}" var="objClientWrp">
+
+                        <Row ss:Height="16">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objClientWrp.clientName} </Data></Cell>
+                            <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!objClientWrp.objFirstDamage.litify_pm__Matter__c}"><Data ss:Type="String">{!objClientWrp.objFirstDamage.litify_pm__Matter__r.Name}
+                                </Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Svc Start -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                        <apex:param value="{!objClientWrp.objFirstDamage.litify_pm__Service_Start_Date__c}"/></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Bill - {!objClientWrp.objFirstDamage.litify_pm__Amount_Billed__c}</Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objClientWrp.objFirstDamage.Accounting_Comments__c}</Data></Cell>
+                        </Row>
+
+                        <Row ss:Height="16">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objClientWrp.clientAddress} </Data></Cell>
+                            <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!objClientWrp.objFirstDamage.Id}"><Data ss:Type="String">{!objClientWrp.objFirstDamage.Name}</Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Svc End -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                        <apex:param value="{!objClientWrp.objFirstDamage.litify_pm__Service_End_Date__c}"/></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Paid - {!objClientWrp.objFirstDamage.litify_pm__Amount_Paid__c}</Data></Cell>
+                        </Row>
+
+                        <Row ss:Height="16">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"> </Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">
+                                    <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                        <apex:param value="{!objClientWrp.clientDOB}"/></apex:outputText>
+                                </Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objClientWrp.objFirstDamage.Account__c}</Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Last Verify -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                        <apex:param value="{!objClientWrp.objFirstDamage.Damage_Verification_Request_Date__c}"/></apex:outputText>
+                                </Data>
+                            </Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String">Bal - {!objClientWrp.objFirstDamage.Balance_Due__c}</Data></Cell>
+                        </Row>
+
+                        <apex:outputPanel layout="none" rendered="{!objClientWrp.clientSSN<>null}">
+                            <Row ss:Height="16">
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objClientWrp.clientSSN}</Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            </Row>
+                        </apex:outputPanel>
+
+                        <Row ss:Height="48">
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                        </Row>
+
+
+                        <apex:repeat value="{!objClientWrp.listDamages}" var="objDmg">
+
+                            <Row ss:Height="16">
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!objDmg.litify_pm__Matter__c}"><Data ss:Type="String">{!objDmg.litify_pm__Matter__r.Name}
+                                    </Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">
+                                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">Svc Start -&nbsp;<apex:param value="{!objDmg.litify_pm__Service_Start_Date__c}"/></apex:outputText>
+                                    </Data>
+                                </Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">Bill - {!objDmg.litify_pm__Amount_Billed__c}</Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objDmg.Accounting_Comments__c}</Data></Cell>
+
+                            </Row>
+                            <Row ss:Height="16">
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText" ss:HRef="{!baseUrl}/{!objDmg.Id}"><Data ss:Type="String">{!objDmg.Name}</Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">Svc End -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                            <apex:param value="{!objDmg.litify_pm__Service_End_Date__c}"/></apex:outputText>
+                                    </Data>
+                                </Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">Paid - {!objDmg.litify_pm__Amount_Paid__c}</Data></Cell>
+                            </Row>
+                            <Row ss:Height="16">
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">{!objDmg.Account__c}</Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">Last Verify -&nbsp;<apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                            <apex:param value="{!objDmg.Damage_Verification_Request_Date__c}"/></apex:outputText>
+                                    </Data>
+                                </Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String">Bal - {!objDmg.Balance_Due__c}</Data></Cell>
+
+                            </Row>
+                            <Row ss:Height="48">
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                                <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                            </Row>
+                        </apex:repeat>
+
+                    </apex:repeat>
+
+                    <Row ss:Height="16">
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                        <Cell ss:StyleID="normalText"><Data ss:Type="String"></Data></Cell>
+                    </Row>
+
+
+                </apex:repeat>
+
+                <Row ss:Height="16">
+                    <Cell >
+                        <Data ss:Type="String"> </Data>
+                    </Cell>
+                </Row>
+                <Row ss:Height="16">
+                    <Cell ss:StyleID="boldText" >
+                        <Data ss:Type="String">   </Data>
+                    </Cell>
+                </Row>
+                <Row ss:Height="16">
+                    <Cell ss:StyleID="boldText" >
+                        <Data ss:Type="String" > </Data>
+                    </Cell>
+
+                </Row>
+
+            </Table>
+
+
+
+            <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+                <PageLayoutZoom>0</PageLayoutZoom>
+                <Selected/>
+                <FreezePanes/>
+                <FrozenNoSplit/>
+                <SplitHorizontal>1</SplitHorizontal>
+                <TopRowBottomPane>1</TopRowBottomPane>
+                <ActivePane>2</ActivePane>
+                <Panes>
+                    <Pane>
+                        <Number>3</Number>
+                    </Pane>
+                </Panes>
+                <ProtectObjects>False</ProtectObjects>
+                <ProtectScenarios>False</ProtectScenarios>
+            </WorksheetOptions>
+        </Worksheet>
+    </Workbook>
+
+</apex:page>

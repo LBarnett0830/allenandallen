@@ -1,0 +1,13 @@
+<template>
+    <!--
+    <lightning-card title="Hello" icon-name="custom:custom14">
+        <div class="slds-m-around_medium">
+            Hello world! {popupValue}
+        </div>
+    </lightning-card>
+    -->
+    <c-popover name="alertPopover" body={popupValue} confirm-label={confirmLabel} cancel-label={cancelLabel}
+                show={showPopup} header={popupTitle} footer={popupFooter} onclick={handleClick} onclose={handleClick}
+                nubbin={popupNubbin} size={popupSize} variant="error">
+    </c-popover>
+</template>

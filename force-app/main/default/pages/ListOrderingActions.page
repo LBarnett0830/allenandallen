@@ -1,0 +1,48 @@
+<apex:page standardController="litify_pm__Request__c" recordSetVar="Requests">
+    <style>
+        .headerStyle {
+            text-align: center;
+        }
+
+        .bPageBlock .pbTitle {
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+    <apex:form >
+        <apex:pageBlock title="Requests actions" mode="edit">
+            <apex:pageMessages />
+            <apex:pageBlockTable value="{!selected}" var="req">
+                <apex:column headerValue="Request Name">
+                    <apex:outputLink value="{!URLFOR($Action.litify_pm__Request__c.View, req.Id)}">{!req.Name}
+                    </apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Record ID" value="{!req.Record_ID__c}"/>
+                <apex:column headerValue="Facility" value="{!req.litify_pm__Facility__c}"/>
+                <apex:column headerValue="Record Type" value="{!req.litify_pm__Request_Type__c}"/>
+                <apex:column headerValue="Matter" value="{!req.litify_pm__Matter__c}"/>
+                <apex:column headerValue="Action" headerClass="headerStyle">
+                    <div id="action-{!req.Name}-{!req.Id}"/>
+                    <apex:includeLightning />
+                    <script>
+                        $Lightning.use("c:OrderApp", function () {
+                            $Lightning.createComponent("c:OrderedStatusActions",
+                                {
+                                    "recordId": "{!req.Id}",
+                                    "request":"{!req}",
+                                    "listAction":"true"},
+                                "action-{!req.Name}-{!req.Id}",
+                                function(cmp) {
+                                    console.log("Ordered actions were created");
+                                }
+                            );
+                        });
+
+                    </script>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+
+
+    </apex:form>
+</apex:page>

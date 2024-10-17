@@ -1,0 +1,225 @@
+<aura:component controller="addGLVarsOnFinancialStmtController"  implements="force:appHostable,force:lightningQuickActionWithoutHeader,force:hasRecordId"  >
+    <!-- this component is used in Add GL Variables Quick Action/ Button in Financial Statement Definition -->
+    
+    <aura:html tag="style">
+        
+        
+        .slds-modal__header{
+        background: #337AB7 !important; color: #fff;
+        }
+        .maincontent{
+        overflow:hidden;
+        }
+        .slds-modal__footer{
+        display: block !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+        .slds-p-around--medium {
+        padding: 0rem !important;
+        } 
+        .slds-modal__content{
+        height: unset!important;
+        max-height: unset!important;
+        }
+        .slds-modal__container {
+        max-width:1000px;
+        }
+    </aura:html>
+    
+    <aura:attribute name="objWrapper" type="object"/>
+    <aura:attribute name="departmentId" type="string"/>
+    <aura:attribute name="departmentName" type="string"/>
+    <aura:attribute name="locationId" type="string"/>
+    <aura:attribute name="locationName" type="string"/>
+    <aura:attribute name="serviceLineId" type="string"/>
+    <aura:attribute name="serviceLineName" type="string"/>
+    <aura:attribute name="departmentFilter" type="string"/>
+    <aura:attribute name="locationFilter" type="string"/>
+    <aura:attribute name="serviceLineFilter" type="string"/>
+    
+    <aura:attribute name="showSuccess" type="boolean"/>
+    <aura:attribute name="showSpinner" type="boolean"/>
+    <aura:attribute name="showConfirm" type="boolean"/>
+    <aura:attribute name="disableInput" type="boolean" default="false"/>
+    <aura:attribute name="showSave" type="boolean" default="false"/>
+    <aura:attribute name="showSubmit" type="boolean" default="false"/>
+    <aura:attribute name="isClassic" type="boolean" default="false"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="recordUrlBase" type="String"/>
+    <aura:attribute name="recordUrlBaseEnd" type="String"/>
+    
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/> 
+    
+    <div class="modal-header slds-modal__header slds-size_1-of-1">
+        <span style="font-size: 14pt;">Add GL Variables</span>
+    </div>
+    
+    <form class="slds-form–stacked">
+        
+        <div  id="mainDiv" class="slds-grid slds-wrap">
+            
+            <div class="slds-col slds-large-size_1-of-1" style="background-color: #ffffff;padding-bottom:100px;"> 
+                <div class="slds-grid slds-wrap" html-autocomplete="off">
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-3 slds-p-around--large">
+                        <div class="slds-form-element">
+                            <div class="slds-form-element__control" >
+                                <c:customLookupCmp 
+                                                   objectAPIName="AcctSeed__Accounting_Variable__c" 
+                                                   label="Department"
+                                                   returnFields="['Name' ]" 
+                                                   queryFields="['Name']"
+                                                   selectedId="{!v.objWrapper.departmentId}"
+                                                   showAddNew="false"
+                                                   filter ="AcctSeed__Type__c='GL Account Variable 3'"
+                                                   selectedName="{!v.objWrapper.departmentName}"
+                                                   disabled="{!v.disableInput}"
+                                                   />  
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-3 slds-p-around--large">
+                        <div class="slds-form-element">
+                            <div class="slds-form-element__control" >
+                                <c:customLookupCmp 
+                                                   objectAPIName="AcctSeed__Accounting_Variable__c" 
+                                                   label="Location"
+                                                   returnFields="['Name' ]" 
+                                                   queryFields="['Name']"
+                                                   selectedId="{!v.objWrapper.locationId}"
+                                                   showAddNew="false"
+                                                   filter ="AcctSeed__Type__c='GL Account Variable 2'"
+                                                   selectedName="{!v.objWrapper.locationName}"
+                                                   disabled="{!v.disableInput}"
+                                                   />  
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-3 slds-p-around--large">
+                        <div class="slds-form-element">
+                            <div class="slds-form-element__control" >
+                                <c:customLookupCmp 
+                                                   objectAPIName="AcctSeed__Accounting_Variable__c" 
+                                                   label="Service Line"
+                                                   returnFields="['Name' ]" 
+                                                   queryFields="['Name']"
+                                                   selectedId="{!v.objWrapper.serviceLineId}"
+                                                   showAddNew="false"
+                                                   filter ="AcctSeed__Type__c='GL Account Variable 1'"
+                                                   selectedName="{!v.objWrapper.serviceLineName}"
+                                                   disabled="{!v.disableInput}"
+                                                   />  
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    
+                </div>                            
+                
+            </div>
+            
+            
+            
+            
+        </div>
+    </form>
+    
+    <footer class="modal-footer slds-modal__footer slds-size_1-of-1" style="text-align:center;">
+        <button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}"  >Cancel</button>
+        <button class="slds-button slds-button_brand" onclick="{!c.showConfirmation}"  disabled="{!v.showSpinner}">Submit</button>
+        
+    </footer>
+    
+    
+    <aura:if isTrue="{!v.showSpinner}">
+        <div id="divLoading" >
+            <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                <div class="slds-spinner_container slds-is-fixed">
+                    <div role="status" class="slds-spinner slds-spinner_medium">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+    
+    
+    <aura:if isTrue="{!v.showConfirm}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to save</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div class="slds-col slds-large-size_1-of-1">  
+                        
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-3 slds-p-around--large">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Department</label>
+                                    <div class="slds-form-element__control">
+                                        {!v.objWrapper.departmentName}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-3 slds-p-around--large">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Location</label>
+                                    <div class="slds-form-element__control">
+                                        {!v.objWrapper.locationName}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-3 slds-p-around--large">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Service Line</label>
+                                    <div class="slds-form-element__control">
+                                        {!v.objWrapper.serviceLineName}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            
+                            
+                        </div>  
+                        
+                    </div>
+                    
+                    <div style="text-align:center;padding-bottom:20px;">
+                        <b>Do you want to proceed? </b>
+                    </div>
+                    
+                    
+                    <footer class="slds-modal__footer confirmation" style="text-align:center;">
+                        
+                        <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                        <button class="slds-button slds-button_brand" onclick="{!c.submitToProcess}">Yes</button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    
+    
+    
+</aura:component>

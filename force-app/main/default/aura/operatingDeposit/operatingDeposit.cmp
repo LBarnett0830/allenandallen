@@ -1,0 +1,570 @@
+<aura:component controller="depositForExpenseController" implements="force:appHostable">
+    <aura:html tag="style">
+        .slds-modal__header{
+        background: #337AB7 !important; color: #fff;
+        }
+        /*.modal-body{
+        height : 100% !important;
+        max-height: 600px !important;
+        }*/
+        .modalContent {
+        height:100% !important;        
+        }
+        .slds-modal__footer{
+        /*display: none;*/
+        }
+        .confirmation{
+        display: block;
+        }
+        .tblTH{
+        padding-left: 7px !important;
+        }
+    </aura:html>
+    
+    <aura:attribute name="objDepositWrapper" type="Object"/>
+    <aura:attribute name="GlId" type="String"/>
+    <aura:attribute name="GlName" type="String"/>
+    <aura:attribute name="showSpinner" type="boolean"/>
+    <aura:attribute name="showSaveAndSubmitConfirm" type="boolean"/>
+    <aura:attribute name="disableInput" type="boolean" default="false"/>
+    <aura:attribute name="hasError" type="boolean" default="false"/>
+    <aura:attribute name="disableCreateExpense" type="boolean" default="true"/>
+    <aura:attribute name="BankNameFilter" type="String"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    
+    <header class="slds-modal__header">
+        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Deposit</h2>
+    </header>
+    
+    <div class="slds-modal__content slds-p-around_medium modalContent" id="modal-content-id-1">
+        <div class="slds-grid slds-wrap" id="mainDiv" >
+            
+            <div class="slds-col slds-large-size_1-of-1" autocomplete="off"> 
+                
+                <!--Trust Deposit section-->
+                <div class="slds-page-header">
+                    <div class="slds-page-header__row">
+                        <div class="slds-page-header__col-title">
+                            <div class="slds-media">
+                                <div class="slds-media__figure">
+                                    
+                                </div>
+                                <div class="slds-media__body">
+                                    <div class="slds-page-header__name">
+                                        <div class="slds-page-header__name-title">
+                                            <h1>
+                                                <span class="slds-page-header__title slds-truncate">Deposit</span>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-large-size_1-of-1"> 
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium" >
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c:customLookupCmp  
+                                                       objectAPIName="AcctSeed__GL_Account__c" 
+                                                       label="Bank Account"
+                                                       returnFields="['Name']" 
+                                                       queryFields="['Name']"
+                                                       selectedId="{!v.GlId}"
+                                                       showAddNew="false"
+                                                       filter ="{!v.BankNameFilter}"
+                                                       selectedName="{!v.GlName}"
+                                                       disabled="{!v.objDepositWrapper.listJELineWrapper.length>0}"
+                                                       />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:input type="text" value="{!v.objDepositWrapper.objDeposit.Name}" label="Name" required="true" disabled="{!v.disableInput}" maxlength="50" autocomplete="off"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-8 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:input type="date" value="{!v.objDepositWrapper.objDeposit.Date__c}" label="Date" disabled="{!v.objDepositWrapper.listJELineWrapper.length>0}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium" >
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c:customLookupCmp  
+                                                       objectAPIName="AcctSeed__Accounting_Period__c" 
+                                                       label="Accounting Period"
+                                                       returnFields="['Name']" 
+                                                       queryFields="['Name']"
+                                                       selectedId="{!v.objDepositWrapper.accPeriodId}"
+                                                       showAddNew="false"
+                                                       filter ="AcctSeed__Status__c='Open'"
+                                                       selectedName="{!v.objDepositWrapper.accPeriodName}"
+                                                       disabled="{!v.disableInput}"
+                                                       />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-8 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:input type="number"   formatter="Currency" step="0.01" value="{!v.objDepositWrapper.objDeposit.Total__c}"  disabled="{!v.disableInput}" label="Total Amount" required="true" autocomplete="off"/> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-8 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:input type="number" min="0"   step="1" value="{!v.objDepositWrapper.objDeposit.Number_of_Items__c}"  disabled="{!v.disableInput}" label="Number of Items" required="true" autocomplete="off"/> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-8 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Cash Receipts Total</label>
+                                <div class="slds-form-element__control">
+                                    <ui:outputCurrency value="{!v.objDepositWrapper.jeLineTotal}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-8 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Cash Receipts</label>
+                                <div class="slds-form-element__control">
+                                    <ui:outputText value="{!v.objDepositWrapper.noOfJELines}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!--Expense section-->
+                <br/>
+                <div class="slds-page-header">
+                    <div class="slds-page-header__row">
+                        <div class="slds-page-header__col-title">
+                            <div class="slds-media">
+                                <div class="slds-media__figure">
+                                </div>
+                                <div class="slds-media__body">
+                                    <div class="slds-page-header__name">
+                                        <div class="slds-page-header__name-title">
+                                            <h1>
+                                                <span class="slds-page-header__title slds-truncate">Cash Receipts</span>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slds-col slds-large-size_1-of-1"> 
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:input type="number" aura:id="expenseAmount"  formatter="Currency" step="0.01" value="{!v.objDepositWrapper.objJELineWrapper.amount}"  disabled="{!v.disableInput}" label="Amount" autocomplete="off"/> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <!--<lightning:input type="text" value="{!v.objDepositWrapper.objJELineWrapper.payorName}" maxlength="50" label="Payor" disabled="{!v.disableInput}" autocomplete="off"/>-->
+                                    <c:lookupCmp 
+                                                 objectAPIName="Account" 
+                                                 label="Payor"
+                                                 returnFields="['Name']" 
+                                                 queryFields="['Name']"
+                                                 selectedId="{!v.objDepositWrapper.objJELineWrapper.payorId}"
+                                                 showAddNew="false"
+                                                 filter =""
+                                                 selectedName="{!v.objDepositWrapper.objJELineWrapper.payorName}"
+                                                 disabled="{!v.disableInput}"
+                                                 />  
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c:customLookupCmp 
+                                                       objectAPIName="litify_pm__Matter__c" 
+                                                       label="Matter"
+                                                       returnFields="['Name','litify_pm__Display_Name__c','Matter_ID__c']" 
+                                                       queryFields="['Name','litify_pm__Display_Name__c','Matter_ID__c']"
+                                                       selectedId="{!v.objDepositWrapper.objJELineWrapper.matterId}"
+                                                       showAddNew="false"
+                                                       filter =""
+                                                       selectedName="{!v.objDepositWrapper.objJELineWrapper.matterName}"
+                                                       disabled="{!v.disableInput}"
+                                                       />  
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium" >
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c:customLookupCmp  
+                                                       objectAPIName="AcctSeed__GL_Account__c" 
+                                                       label="Credit GL Account"
+                                                       returnFields="['Name']" 
+                                                       queryFields="['Name']"
+                                                       selectedId="{!v.objDepositWrapper.objJELineWrapper.CreditGlAccId}"
+                                                       showAddNew="false"
+                                                       filter ="AcctSeed__Bank__c=false"
+                                                       selectedName="{!v.objDepositWrapper.objJELineWrapper.CreditGlAccName}"
+                                                       disabled="{!v.disableInput}"
+                                                       />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium">
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:input type="date" value="{!v.objDepositWrapper.objJELineWrapper.jeLineDate}" label="Date" disabled="{!v.disableInput}"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-8 slds-p-around--medium" >
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:select aura:id="validate" name="select" label="Create Expense" value="{!v.objDepositWrapper.objJELineWrapper.createExpense}" disabled="{!v.disableCreateExpense}">
+                                        <!--<option value="N/A">N/A</option>-->
+                                        <option value="Negative">Negative</option>
+                                        <aura:iteration items="{!v.objDepositWrapper.objJELineWrapper.createExpenseList}" var="item">
+                                            <option value="{!item}"><ui:outputText value="{!item}" /></option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6 slds-p-around--medium" >
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <c:customLookupCmp  
+                                                       objectAPIName="litify_pm__Expense_Type__c" 
+                                                       label="Expense Type"
+                                                       returnFields="['Name','Category__c']" 
+                                                       queryFields="['Name','Category__c']"
+                                                       selectedId="{!v.objDepositWrapper.objJELineWrapper.expenseTypeId}"
+                                                       showAddNew="false"
+                                                       filter =""
+                                                       selectedName="{!v.objDepositWrapper.objJELineWrapper.expenseTypeName}"
+                                                       disabled="{!v.disableInput}"
+                                                       />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-8 slds-p-around--medium" >
+                            <div class="slds-form-element">
+                                <div class="slds-form-element__control">
+                                    <lightning:select aura:id="validate" name="select" label="Expense Billing Status" value="{!v.objDepositWrapper.objJELineWrapper.expenseStatus}" disabled="{!v.disableInput}">
+                                        <option value="N/A">N/A</option>
+                                        <aura:iteration items="{!v.objDepositWrapper.objJELineWrapper.expenseStatusList}" var="item">
+                                            <option value="{!item}"><ui:outputText value="{!item}" /></option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--2-of-8 slds-p-around--medium">
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-medium-size--5-of-6">
+                                    <div class="slds-form-element">
+                                        <div class="slds-form-element__control">
+                                            <lightning:input type="text" value="{!v.objDepositWrapper.objJELineWrapper.narrative}" maxlength="100" label="Reference" disabled="{!v.disableInput}" autocomplete="off"/>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-col slds-medium-size--1-of-12 slds-p-around--medium">
+                                    <div style="margin-top: 7px;" >
+                                        <button class="slds-button slds-button_brand" onclick="{!c.handleAddCR}" disabled="{!v.disableInput}">Add</button>
+                                        
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                        
+                    </div>                            
+                    
+                </div>
+                
+                <!--Expense table-->
+                <br/><br/>
+                 
+                <div class=" slds-table_edit_container"  style="height:400px;">
+                    <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_edit slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                        <thead>
+                            <tr class="slds-line-height_reset" style="height: 35px;">
+                                <th class="" scope="col" style="padding-left:5px !important;width:3.75rem">
+                                    <div class="slds-truncate slds-assistive-text" title="Errors">Errors</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Sr No.</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col">
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Amount</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Amount</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Payor</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Payor</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Matter</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Matter</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Matter</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Credit GL Account</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Reference</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Date</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Reference</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Create Expense</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Reference</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Expense Type</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Reference</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Expense Billing Status</span>
+                                    </div>
+                                </th>
+                                <th class="tblTH" scope="col" >
+                                    <div class="slds-truncate slds-assistive-text" title="Actions">Reference</div>
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                        <span class="slds-truncate" title="Name">Reference</span>
+                                    </div>
+                                </th>
+                                <th class="slds-text-align_right " scope="col" style="width:40px; padding-right:5px">
+                                    
+                                </th>   
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            <aura:iteration items="{!v.objDepositWrapper.listJELineWrapper}" var="expense" indexVar="index">
+                                
+                                <tr aria-selected="false" class="slds-hint-parent">
+                                    
+                                    <td role="gridcell">
+                                        <span class="slds-row-number"></span>
+                                    </td>
+                                    
+                                    <th scope="row" style="padding-left:5px;">
+                                        <div class="slds-truncate" title="Amount">
+                                            <lightning:input type="number" aura:id="expenseAmount"  formatter="Currency" step="0.01" value="{!expense.amount}" oncommit="{!c.handleLineAmountChange}"  disabled="{!v.disableInput}" autocomplete="off"/> 
+                                            <!--<ui:outputCurrency value="{!expense.amount}"/>-->
+                                        </div>
+                                    </th>                                        
+                                    
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" title="Payor" >
+                                            <!--<lightning:input type="text" value="{!expense.payorName}" maxlength="50" disabled="{!v.disableInput}" autocomplete="off"/>-->
+                                            <c:lookupCmp 
+                                                 objectAPIName="Account" 
+                                                 label="Payor"
+                                                 returnFields="['Name']" 
+                                                 queryFields="['Name']"
+                                                 selectedId="{!expense.payorId}"
+                                                 showAddNew="false"
+                                                 filter =""
+                                                 selectedName="{!expense.payorName}"
+                                                 disabled="{!v.disableInput}"
+                                                 /> 
+                                        </div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div>
+                                            <c:customLookupCmp 
+                                                       objectAPIName="litify_pm__Matter__c" 
+                                                       returnFields="['Name','litify_pm__Display_Name__c','Matter_ID__c']" 
+                                                       queryFields="['Name','litify_pm__Display_Name__c','Matter_ID__c']"
+                                                       selectedId="{!expense.matterId}"
+                                                       showAddNew="false"
+                                                       filter =""
+                                                       selectedName="{!expense.matterName}"
+                                                       disabled="{!v.disableInput}"
+                                                       />  
+                                            <!--<a href="{!v.recordUrlBase+ expense.matterId + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!expense.matterName}</a>-->
+                                        </div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div title="Payor" >
+                                            <c:customLookupCmp  
+                                                       objectAPIName="AcctSeed__GL_Account__c" 
+                                                       returnFields="['Name']" 
+                                                       queryFields="['Name']"
+                                                       selectedId="{!expense.CreditGlAccId}"
+                                                       showAddNew="false"
+                                                       filter ="AcctSeed__Bank__c=false"
+                                                       selectedName="{!expense.CreditGlAccName}"
+                                                       disabled="{!v.disableInput}"
+                                                       />
+                                            <!--{!expense.CreditGlAccName}-->
+                                        </div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div title="Payor" >
+                                            <lightning:input type="date" value="{!expense.jeLineDate}" disabled="{!v.disableInput}"/>
+                                            <!--{!expense.jeLineDate}-->
+                                        </div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" title="Expense" >
+                                            <lightning:select aura:id="validate" name="select" value="{!expense.createExpense}" disabled="{!v.disableInput}">
+                                        <option value="N/A">N/A</option>
+                                        <aura:iteration items="{!expense.createExpenseList}" var="item">
+                                            <option value="{!item}"><ui:outputText value="{!item}" /></option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                            <!--{!expense.createExpense}-->
+                                        </div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div title="Expense Type" >
+                                            <c:customLookupCmp  
+                                                       objectAPIName="litify_pm__Expense_Type__c" 
+                                                       returnFields="['Name','Category__c']" 
+                                                       queryFields="['Name','Category__c']"
+                                                       selectedId="{!expense.expenseTypeId}"
+                                                       showAddNew="false"
+                                                       filter =""
+                                                       selectedName="{!expense.expenseTypeName}"
+                                                       disabled="{!v.disableInput}"
+                                                       />
+                                            <!--{!expense.expenseTypeName}-->
+                                        </div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <div class="slds-truncate" title="Expense" >
+                                            <lightning:select aura:id="validate" name="select" value="{!expense.expenseStatus}" disabled="{!v.disableInput}">
+                                        <option value="N/A">N/A</option>
+                                        <aura:iteration items="{!expense.expenseStatusList}" var="item">
+                                            <option value="{!item}"><ui:outputText value="{!item}" /></option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                            <!--{!expense.expenseStatus}-->
+                                        </div>
+                                    </td>
+                                    <td role="gridcell">
+                                        <lightning:input type="text" value="{!expense.narrative}" maxlength="100" disabled="{!v.disableInput}" autocomplete="off"/>
+                                        <!--<div class="slds-truncate" title="Comment">{!expense.narrative}</div>-->
+                                    </td>
+                                    <td class="slds-text-align_right" role="gridcell" >
+                                        <div class="slds-checkbox">
+                                            <lightning:buttonIcon disabled="{!v.disableInput}" iconName="utility:delete"  value="{!index}"  variant="brand" alternativeText="Delete"   size="small" title="Delete" onclick="{!c.handleCRDelete}"/>
+                                        </div>
+                                        
+                                    </td>
+                                    
+                                </tr>
+                            </aura:iteration>
+                        </tbody>
+                    </table>
+                </div>
+                
+            </div>
+            
+            
+        </div>
+        <footer class="slds-modal__footer slds-docked-form-footer ">
+            <!--<button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}"  >Cancel</button>-->
+            <button class="slds-button slds-button_brand" onclick="{!c.handleOnSave}"  disabled="{!or(v.disableInput,v.showSpinner)}">Save</button>
+            <button class="slds-button slds-button_brand" onclick="{!c.handleOnSaveAndSubmit}"  disabled="{!or(v.disableInput,v.showSpinner)}">Save And Submit</button>
+        </footer>
+        
+        
+        <aura:if isTrue="{!v.showSpinner}">
+            <div id="divLoading" >
+                <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                    <div class="slds-spinner_container slds-is-fixed">
+                        <div role="status" class="slds-spinner slds-spinner_medium">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        
+        
+    </div>
+    
+    <aura:if isTrue="{!v.showSaveAndSubmitConfirm}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container" style ="width: 50% !important;">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to submit</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <center><p>Do you want to Save And Submit?
+                        </p>
+                    </center> 
+                    <br/>
+                    <footer class="slds-modal__footer confirmation">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                        <button class="slds-button slds-button_brand" onclick="{!c.processSaveAndSubmit}">Yes</button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    
+</aura:component>

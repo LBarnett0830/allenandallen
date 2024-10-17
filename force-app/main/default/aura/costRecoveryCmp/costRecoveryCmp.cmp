@@ -1,0 +1,622 @@
+<aura:component controller="costRecoveryController"  implements="force:lightningQuickAction,force:hasRecordId,force:appHostable"  >
+    <!-- this component is used in Cost recovery Quick Action/ Button 
+    developed by Sampath Suranji-->
+    
+    <aura:attribute name="unBilledexpenses" type="litify_pm__Expense__c[]"/>
+    <aura:attribute name="preBilledexpenses" type="litify_pm__Expense__c[]"/>
+    <aura:attribute name="resolutionWrapper" type="resolutionExpensesWrapper"/>
+    <aura:attribute name="balanceAmount" type="decimal"/>
+    <aura:attribute name="showError" type="boolean"/>
+    <aura:attribute name="showExpenses" type="boolean" default="true"/>
+    <aura:attribute name="showSuccess" type="boolean"/>
+    <aura:attribute name="showSpinner" type="boolean"/>
+    <aura:attribute name="showConfirm" type="boolean"/>
+    <aura:attribute name="disableInput" type="boolean" default="false"/>
+    <aura:attribute name="showSave" type="boolean" default="false"/>
+    <aura:attribute name="showConfirmToSaveAndPrint" type="boolean" default="false"/>
+     <aura:attribute name="isClassic" type="boolean" default="false"/>
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="amountWrittenOff" type="decimal"/>
+    <aura:attribute name="recordUrlBase" type="String"/>
+    <aura:attribute name="recordUrlBaseEnd" type="String"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="change" value="{!v.resolutionWrapper.writeOffAmount}" action="{!c.handleWriteOffChange}"/>
+    
+    
+    
+    <aura:html tag="style">
+        .slds-modal__container{
+        /*height : auto;*/
+        width: 98%;
+        max-width: 1700px;
+        }
+        .slds-modal__content{
+        height : auto !important;
+        max-height: unset !important;
+        }
+        
+        .slds-modal__header{
+        background: #337AB7 !important; color: #fff;
+        }
+        .modal-body{
+        height : 100% !important;
+        max-height: 600px !important;
+        }
+        
+        .slds-modal__footer{
+        display: none;
+        }
+        .confirmation{
+        display: block;
+        }
+        .footerToDisplay{
+        /* border-top: var(--lwc-borderWidthThick,2px) solid var(--lwc-colorBorder,rgb(221, 219, 218));
+        border-bottom-right-radius: var(--lwc-borderRadiusMedium,0.25rem);
+        border-bottom-left-radius: var(--lwc-borderRadiusMedium,0.25rem);
+        padding: var(--lwc-spacingSmall,0.75rem) var(--lwc-spacingMedium,1rem);
+        background-color: var(--lwc-colorBackground,rgb(243, 242, 242));
+        text-align: right;
+        box-shadow: var(--lwc-shadowDropDown,0 2px 3px 0 rgba(0, 0, 0, 0.16));*/
+        }
+        .tblTH{
+        padding-left: 7px !important;
+        }
+        @media only screen and (min-width: 992px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 600px !important;
+        }
+        }
+        
+        /* Extra large devices (large laptops and desktops, 1200px and up) */
+        @media only screen and (min-width: 1200px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 700px !important;
+        }
+        } 
+        
+        /* Extra large devices (large laptops and desktops, 2000px and up) */
+        @media only screen and (min-width: 2000px) {
+        .modal-body{
+        height : 100% !important;
+        max-height: 800px !important;
+        }
+        } 
+    </aura:html> 
+    
+    
+    <aura:if isTrue="{!v.resolutionWrapper.objResolution.litify_pm__Matter__r.Name != null}">
+        <div class="slds-grid slds-wrap" id="mainDiv">
+            
+            <div class="slds-col slds-large-size_1-of-1">  
+                
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Resolution</label>
+                            <div class="slds-form-element__control">
+                                {!v.resolutionWrapper.objResolution.Name}
+                            </div>
+                            <div class="slds-form-element__control" style="font-weight:bold;">
+                                {!v.resolutionWrapper.objResolution.Statement_Status__c}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Matter</label>
+                            <div class="slds-form-element__control">
+                                {!v.resolutionWrapper.objResolution.litify_pm__Matter__r.Name}
+                            </div>
+                            <div class="slds-form-element__control" >
+                                {!v.resolutionWrapper.objResolution.litify_pm__Matter__r.litify_pm__Display_Name__c}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                        
+                        
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Total Billed Amount</label>
+                            <div class="slds-form-element__control">
+                                <ui:outputCurrency value="{!v.resolutionWrapper.totalPreBilledAmount}"/>
+                            </div>
+                            
+                        </div>
+                        
+                        
+                    </div>
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Total Voided Amount</label>
+                            <div class="slds-form-element__control">
+                                <ui:outputCurrency value="{!v.resolutionWrapper.totalVoidedAmount}"/>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Total Damages</label>
+                            <div class="slds-form-element__control">
+                                <ui:outputCurrency value="{!v.resolutionWrapper.totalDamagedAmount}"/>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">Total Liens</label>
+                            <div class="slds-form-element__control">
+                                <ui:outputCurrency value="{!v.resolutionWrapper.objResolution.Total_Liens__c}"/>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                </div>                
+                
+                
+                <div style="margin-top:20px;">
+                    
+                    <div>
+                        <div class="slds-col slds-large-size_1-of-1">  
+                            
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Unbilled Expense Lines</label>
+                                        <div class="slds-form-element__control">
+                                            {!v.resolutionWrapper.unbilledExpenses.length}
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Billed Expense Lines</label>
+                                        <div class="slds-form-element__control">
+                                            {!v.resolutionWrapper.billedAndPreBilledExpenses.length}
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Void Unbilled Expense Lines</label>
+                                        <div class="slds-form-element__control">
+                                            {!v.resolutionWrapper.noOfVoidUnBilled}
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Void Billed Expense Lines</label>
+                                        <div class="slds-form-element__control">
+                                            {!v.resolutionWrapper.noOfVoidBilled}
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-col slds-size--1-of-1 slds-small-size--1-of-2 slds-medium-size--1-of-6">
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label" for="form-element-01" style="font-weight:bold;">No of Unapproved Expense Lines</label>
+                                        
+                                        <aura:if isTrue="{!v.resolutionWrapper.noOfUnapproved>0}">
+                                            <div class="slds-form-element__control" style="color:red;">
+                                                {!v.resolutionWrapper.noOfUnapproved}
+                                            </div>
+                                            <aura:set attribute="else">
+                                                 <div class="slds-form-element__control">
+                                                {!v.resolutionWrapper.noOfUnapproved}
+                                            </div>
+                                            </aura:set>
+                                        </aura:if>
+                                        
+                                    </div>
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                        
+                        
+                        <!-- <div class="slds-page-header__col-details" style="margin-bottom:20px;">
+                            <ul class="slds-page-header__detail-row">
+                                <li class="slds-page-header__detail-block">
+                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Unbilled Expense Lines</div>
+                                    <div class="slds-truncate" title="Unbilled lines">{!v.resolutionWrapper.noOfUnBilled}</div>
+                                </li>
+                                <li class="slds-page-header__detail-block">
+                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Billed Expense Lines</div>
+                                    <div class="slds-truncate" title="Prebilled lines">{!v.resolutionWrapper.billedExpenses.length}</div>
+                                   
+                                </li>
+                                <li class="slds-page-header__detail-block">
+                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Void Unbilled Expense Lines</div>
+                                    <div class="slds-truncate" title="Unbilled lines">{!v.resolutionWrapper.noOfUnBilled}</div>
+                                </li>
+                                <li class="slds-page-header__detail-block">
+                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Void Billed Expense Lines</div>
+                                    <div class="slds-truncate" title="Prebilled lines">{!v.resolutionWrapper.billedExpenses.length}</div>
+                                   
+                                </li>
+                            </ul>
+                        </div>
+                        -->
+                        <!--unbilled expenses-->
+                        <div class="slds-page-header">
+                            <div class="slds-page-header__row">
+                                <div class="slds-page-header__col-title">
+                                    <div class="slds-media">
+                                        <div class="slds-media__figure">
+                                            
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <div class="slds-page-header__name">
+                                                <div class="slds-page-header__name-title">
+                                                    <h1>
+                                                        <span class="slds-page-header__title slds-truncate">Unbilled Expenses</span>
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                            <thead>
+                                <tr class="slds-line-height_reset" style="height: 35px;">
+                                    <th class="slds-text-align_right " scope="col" style="width:30px; padding-right:5px">
+                                        <div class="slds-checkbox">
+                                            <input type="checkbox" name="chk" id="selectUnbilledAll" onchange="{!c.handleAllUnBilledSelect}" disabled="{!v.disableInput}"/>                            
+                                            <label class="slds-checkbox__label" for="selectUnbilledAll">
+                                                <span class="slds-checkbox_faux"></span>                                
+                                            </label>
+                                        </div>
+                                        
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Expense Id</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Expense Id</span>
+                                        </div>
+                                    </th>
+                                    
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Date</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Date</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Amount</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Amount</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Expense Type</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Expense Type</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Expense Category</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Expense Category</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Void</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Void</span>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!v.resolutionWrapper.unbilledExpenses}" var="expense">
+                                    <tr aria-selected="false" class="slds-hint-parent">
+                                        
+                                        <td class="slds-text-align_right" role="gridcell">
+                                            <div class="slds-checkbox">
+                                                <lightning:input type="checkbox"  value="{!expense.Id}" onchange="{!c.handleUnBilledSelect}" disabled="{!v.disableInput}"/>
+                                                
+                                            </div>
+                                            
+                                        </td>
+                                        <th scope="row">
+                                            <div class="slds-truncate" title="Name">
+                                                <a href="{!v.recordUrlBase+ expense.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!expense.Name}</a>
+                                                
+                                            </div>
+                                        </th>
+                                        
+                                        
+                                        
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Date">
+                                                <ui:outputDate value="{!expense.litify_pm__Date__c}" format="MM/dd/YYYY"/>
+                                            </div> 
+                                        </td>
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Amount" >
+                                                <ui:outputCurrency value="{!expense.Amount_after_Reductions__c}"/>
+                                            </div>
+                                        </td>
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Amount">{!expense.litify_pm__ExpenseType2__r.Name}</div>
+                                        </td>
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Amount">{!expense.Expense_Category__c}</div>
+                                        </td>
+                                        <td role="gridcell">
+                                            
+                                            <div class="slds-truncate" title="Amount">
+                                                <aura:if isTrue="{!expense.Void__c}">
+                                                    True
+                                                    <aura:set attribute="else">
+                                                        False
+                                                    </aura:set>
+                                                </aura:if>
+                                                
+                                               
+                                            </div>
+                                        </td> 
+                                        
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                        
+                        <br/><br/>
+                        
+                        <!--prebilled expenses-->
+                        <aura:if isTrue="{!v.resolutionWrapper.objResolution.Statement_Status__c!='Final'}">
+                            <div class="slds-page-header">
+                                <div class="slds-page-header__row">
+                                    <div class="slds-page-header__col-title">
+                                        <div class="slds-media">
+                                            <div class="slds-media__figure">
+                                                
+                                            </div>
+                                            <div class="slds-media__body">
+                                                <div class="slds-page-header__name">
+                                                    <div class="slds-page-header__name-title">
+                                                        <h1>
+                                                            <span class="slds-page-header__title slds-truncate">Billed/Pre-Billed Expenses</span>
+                                                        </h1>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                <thead>
+                                    <tr class="slds-line-height_reset" style="height: 35px;" >
+                                        <th class="slds-text-align_right " scope="col" style="width:30px; padding-right:5px">
+                                            <div class="slds-checkbox">
+                                                <input type="checkbox" name="chk" id="selectBilledAll" onchange="{!c.handleAllPreBilledSelect}" disabled="{!v.disableInput}"/>                            
+                                                <label class="slds-checkbox__label" for="selectBilledAll">
+                                                    <span class="slds-checkbox_faux"></span>                                
+                                                </label>
+                                            </div>
+                                            
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Expense Id</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Expense Id</span>
+                                            </div>
+                                        </th>
+                                        
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Date</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Date</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Amount</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Amount</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Expense Type</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Expense Type</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Expense Category</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Expense Category</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Void</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Void</span>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!v.resolutionWrapper.billedAndPreBilledExpenses}" var="expense">
+                                        <tr aria-selected="false" class="slds-hint-parent">
+                                            
+                                            <td class="slds-text-align_right" role="gridcell">
+                                                <lightning:input type="checkbox"  value="{!expense.Id}" onchange="{!c.handlePreBilledSelect}" disabled="{!v.disableInput}"/>
+                                                
+                                            </td>
+                                            <th scope="row">
+                                                <div class="slds-truncate" title="Name">
+                                                    <a href="{!v.recordUrlBase+ expense.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!expense.Name}</a>
+                                                </div>
+                                            </th>                                      
+                                            
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Date">
+                                                    <ui:outputDate value="{!expense.litify_pm__Date__c}" format="MM/dd/YYYY"/>
+                                                </div> 
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Amount" >
+                                                    <ui:outputCurrency value="{!expense.Amount_after_Reductions__c}"/>
+                                                </div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Amount">{!expense.litify_pm__ExpenseType2__r.Name}</div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Amount">{!expense.Expense_Category__c}</div>
+                                            </td>
+                                            <td role="gridcell">
+                                                <div class="slds-truncate" title="Amount">
+                                                 <aura:if isTrue="{!expense.Void__c}">
+                                                    True
+                                                    <aura:set attribute="else">
+                                                        False
+                                                    </aura:set>
+                                                </aura:if>
+                                                </div>
+                                            </td> 
+                                            
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </aura:if>
+                        
+                        
+                       </div>
+                    
+                </div>
+                
+                
+            </div>
+        </div>
+    </aura:if>
+    
+    
+    
+    <aura:if isTrue="{!v.showSpinner}">
+        <div id="divLoading" >
+            <div class="demo-only demo-only demo-only_viewport demo--inverse" style="height:6rem">
+                <div class="slds-spinner_container slds-is-fixed">
+                    <div role="status" class="slds-spinner slds-spinner_medium">
+                        <span class="slds-assistive-text">Loading</span>
+                        <div class="slds-spinner__dot-a"></div>
+                        <div class="slds-spinner__dot-b"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+    
+    <lightning:spinner aura:id="spinner" class="slds-hide" variant="brand" size="large"/>
+    
+    <aura:if isTrue="{!v.showSave ==true}">
+        
+        <div class="slds-docked-form-footer footerToDisplay">
+            <button type="button" class="slds-button slds-button--neutral" onclick="{!c.handleCancel}">Cancel</button>
+            <button type="button" class="slds-button slds-button--brand" onclick="{!c.showConfirmation}">Save</button>
+            <button type="button" class="slds-button slds-button--brand" onclick="{!c.handlePrint}">Create PDF</button>
+        </div>        
+        
+    </aura:if>
+    
+    <aura:if isTrue="{!and((v.resolutionWrapper.preBilledExpenses.length>0),(v.showSave==false))}">
+        
+        <div class="slds-docked-form-footer footerToDisplay">
+            <button type="button" class="slds-button slds-button--neutral" onclick="{!c.handleCancel}">Cancel</button>
+            <button type="button" class="slds-button slds-button--brand" onclick="{!c.handlePrint}">Create PDF</button>
+        </div>
+        
+    </aura:if>
+    
+    <aura:if isTrue="{!and((v.resolutionWrapper.billedAndPreBilledExpenses.length==0),(v.showSave==true))}">
+        <div class="slds-docked-form-footer footerToDisplay">   
+            <button type="button" class="slds-button slds-button--neutral" onclick="{!c.handleCancel}">Cancel</button>
+            <button type="button" class="slds-button slds-button--brand" onclick="{!c.showConfirmation}">Save</button>
+            
+        </div> 
+    </aura:if>
+    
+    <aura:if isTrue="{!and((v.resolutionWrapper.preBilledExpenses.length==0),(v.showSave==false))}">
+        <div class="slds-docked-form-footer footerToDisplay">   
+            <button type="button" class="slds-button slds-button--brand" onclick="{!c.handleCancel}">Cancel</button>
+        </div> 
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showConfirm}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to save</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <center><p>Do you want to save the Resolution?
+                        </p>
+                    </center> 
+                    <br/>
+                    <footer class="slds-modal__footer confirmation" style="text-align:center;">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                        <button class="slds-button slds-button_brand" onclick="{!c.handleSave}">Yes</button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    
+    <aura:if isTrue="{!v.showConfirmToSaveAndPrint}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick="{!c.hideConfirmation}">
+                        X
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Confirm to save and print</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <center><p>Do you want to save the changes and Print?
+                        </p>
+                    </center> 
+                    <br/>
+                    <footer class="slds-modal__footer confirmation" style="text-align:center;">
+                        <button class="slds-button slds-button_neutral" onclick="{!c.hideConfirmation}">No</button>
+                        <button class="slds-button slds-button_brand" onclick="{!c.handleSaveAndPrint}">Yes</button>
+                    </footer>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+    
+    
+</aura:component>

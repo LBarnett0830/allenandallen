@@ -1,0 +1,10 @@
+<aura:component access="global" implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader,force:appHostable,force:hasRecordId" >
+	
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="urlPDF" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    
+    
+    
+    <iframe  height="600" width="100%" src="{!v.urlPDF}" style="overflow:scroll !important; -webkit-overflow-scrolling:touch !important;"/>
+</aura:component>

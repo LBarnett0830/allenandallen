@@ -1,0 +1,32 @@
+<template>
+    <!--
+    <table>
+        <thead>
+            <tr>
+                <template for:each={columns} for:item="column">
+                    <th key={column.label}>{column.label}</th>
+                </template>
+            </tr>
+        </thead>
+        <tbody>
+            <template for:each={data} for:item="row">
+                <tr key={row.id}>
+                    <template for:each={columns} for:item="column">
+                        <td key={column.fieldName}>{row[column.fieldName]}</td>
+                    </template>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+    -->
+    <div class="slds-p-around_x-large">
+        <div>
+            <lightning-datatable
+                key-field="id"
+                data={data}
+                columns={columns}
+                onrowaction={handleRowAction}>
+            </lightning-datatable>
+        </div>
+    </div>
+</template>
