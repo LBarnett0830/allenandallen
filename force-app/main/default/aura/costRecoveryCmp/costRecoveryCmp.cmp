@@ -12,6 +12,7 @@
     <aura:attribute name="showSpinner" type="boolean"/>
     <aura:attribute name="showConfirm" type="boolean"/>
     <aura:attribute name="disableInput" type="boolean" default="false"/>
+    <aura:attribute name="disableInputOther" type="boolean" default="true"/>
     <aura:attribute name="showSave" type="boolean" default="false"/>
     <aura:attribute name="showConfirmToSaveAndPrint" type="boolean" default="false"/>
      <aura:attribute name="isClassic" type="boolean" default="false"/>
@@ -233,43 +234,20 @@
                             </div>
                         </div>
                         
-                        
-                        <!-- <div class="slds-page-header__col-details" style="margin-bottom:20px;">
-                            <ul class="slds-page-header__detail-row">
-                                <li class="slds-page-header__detail-block">
-                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Unbilled Expense Lines</div>
-                                    <div class="slds-truncate" title="Unbilled lines">{!v.resolutionWrapper.noOfUnBilled}</div>
-                                </li>
-                                <li class="slds-page-header__detail-block">
-                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Billed Expense Lines</div>
-                                    <div class="slds-truncate" title="Prebilled lines">{!v.resolutionWrapper.billedExpenses.length}</div>
-                                   
-                                </li>
-                                <li class="slds-page-header__detail-block">
-                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Void Unbilled Expense Lines</div>
-                                    <div class="slds-truncate" title="Unbilled lines">{!v.resolutionWrapper.noOfUnBilled}</div>
-                                </li>
-                                <li class="slds-page-header__detail-block">
-                                    <div class="slds-text-title slds-truncate" title="Field 1" style="padding-top: 5px;font-weight:bold;">No of Void Billed Expense Lines</div>
-                                    <div class="slds-truncate" title="Prebilled lines">{!v.resolutionWrapper.billedExpenses.length}</div>
-                                   
-                                </li>
-                            </ul>
-                        </div>
-                        -->
-                        <!--unbilled expenses-->
+
+                        <br/>
+                        <!--Expenses not on any Resolution-->
                         <div class="slds-page-header">
                             <div class="slds-page-header__row">
                                 <div class="slds-page-header__col-title">
                                     <div class="slds-media">
                                         <div class="slds-media__figure">
-                                            
                                         </div>
                                         <div class="slds-media__body">
                                             <div class="slds-page-header__name">
                                                 <div class="slds-page-header__name-title">
                                                     <h1>
-                                                        <span class="slds-page-header__title slds-truncate">Unbilled Expenses</span>
+                                                        <span class="slds-page-header__title slds-truncate">Expenses not on any Resolution</span>
                                                     </h1>
                                                 </div>
                                             </div>
@@ -310,15 +288,27 @@
                                         </div>
                                     </th>
                                     <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Vendor Name</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Vendor Name</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
                                         <div class="slds-truncate slds-assistive-text" title="Actions">Expense Type</div>
                                         <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
                                             <span class="slds-truncate" title="Name">Expense Type</span>
                                         </div>
                                     </th>
                                     <th class="tblTH" scope="col" >
-                                        <div class="slds-truncate slds-assistive-text" title="Actions">Expense Category</div>
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Category</div>
                                         <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
-                                            <span class="slds-truncate" title="Name">Expense Category</span>
+                                            <span class="slds-truncate" title="Name">Category</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col">
+                                        <div class="slds=slds-truncate slds-assistive-text" title="Actions">Split Parent</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Split Parent</span>
                                         </div>
                                     </th>
                                     <th class="tblTH" scope="col" >
@@ -336,19 +326,13 @@
                                         <td class="slds-text-align_right" role="gridcell">
                                             <div class="slds-checkbox">
                                                 <lightning:input type="checkbox"  value="{!expense.Id}" onchange="{!c.handleUnBilledSelect}" disabled="{!v.disableInput}"/>
-                                                
                                             </div>
-                                            
                                         </td>
                                         <th scope="row">
                                             <div class="slds-truncate" title="Name">
                                                 <a href="{!v.recordUrlBase+ expense.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!expense.Name}</a>
-                                                
                                             </div>
                                         </th>
-                                        
-                                        
-                                        
                                         <td role="gridcell">
                                             <div class="slds-truncate" title="Date">
                                                 <ui:outputDate value="{!expense.litify_pm__Date__c}" format="MM/dd/YYYY"/>
@@ -359,24 +343,32 @@
                                                 <ui:outputCurrency value="{!expense.Amount_after_Reductions__c}"/>
                                             </div>
                                         </td>
+                                        <th scope="row">
+                                            <div class="slds-truncate" title="Name">
+                                                <a
+                                                        href="{!v.recordUrlBase+ expense.Vendor__c + v.recordUrlBaseEnd}"
+                                                        tabindex="0"
+                                                        target="_blank">{!expense.Vendor__r.Name}
+                                                </a>
+                                            </div>
+                                        </th>
                                         <td role="gridcell">
                                             <div class="slds-truncate" title="Amount">{!expense.litify_pm__ExpenseType2__r.Name}</div>
                                         </td>
                                         <td role="gridcell">
                                             <div class="slds-truncate" title="Amount">{!expense.Expense_Category__c}</div>
                                         </td>
-                                        <td role="gridcell">
-                                            
-                                            <div class="slds-truncate" title="Amount">
-                                                <aura:if isTrue="{!expense.Void__c}">
-                                                    True
-                                                    <aura:set attribute="else">
-                                                        False
-                                                    </aura:set>
-                                                </aura:if>
-                                                
-                                               
+                                        <th scope="row">
+                                            <div class="slds-truncate" title="Name">
+                                                <a
+                                                        href="{!v.recordUrlBase+ expense.Split_Parent__c + v.recordUrlBaseEnd}"
+                                                        tabindex="0"
+                                                        target="_blank">{!expense.Split_Parent__r.Name}
+                                                </a>
                                             </div>
+                                        </th>
+                                        <td role="gridcell"><div class="slds-truncate" title="Void">
+                                                <ui:outputCheckbox value="{!expense.Void__c}"/></div>
                                         </td> 
                                         
                                     </tr>
@@ -386,20 +378,19 @@
                         
                         <br/><br/>
                         
-                        <!--prebilled expenses-->
+                        <!--Expenses on this Resolution-->
                         <aura:if isTrue="{!v.resolutionWrapper.objResolution.Statement_Status__c!='Final'}">
                             <div class="slds-page-header">
                                 <div class="slds-page-header__row">
                                     <div class="slds-page-header__col-title">
                                         <div class="slds-media">
                                             <div class="slds-media__figure">
-                                                
                                             </div>
                                             <div class="slds-media__body">
                                                 <div class="slds-page-header__name">
                                                     <div class="slds-page-header__name-title">
                                                         <h1>
-                                                            <span class="slds-page-header__title slds-truncate">Billed/Pre-Billed Expenses</span>
+                                                            <span class="slds-page-header__title slds-truncate">Expenses on this Resolution</span>
                                                         </h1>
                                                     </div>
                                                 </div>
@@ -441,15 +432,33 @@
                                             </div>
                                         </th>
                                         <th class="tblTH" scope="col" >
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Vendor Name</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Vendor Name</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col" >
                                             <div class="slds-truncate slds-assistive-text" title="Actions">Expense Type</div>
                                             <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
                                                 <span class="slds-truncate" title="Name">Expense Type</span>
                                             </div>
                                         </th>
                                         <th class="tblTH" scope="col" >
-                                            <div class="slds-truncate slds-assistive-text" title="Actions">Expense Category</div>
+                                            <div class="slds-truncate slds-assistive-text" title="Actions">Category</div>
                                             <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
-                                                <span class="slds-truncate" title="Name">Expense Category</span>
+                                                <span class="slds-truncate" title="Name">Category</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col">
+                                            <div class="slds=slds-truncate slds-assistive-text" title="Actions">Payment Status</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Payment Status</span>
+                                            </div>
+                                        </th>
+                                        <th class="tblTH" scope="col">
+                                            <div class="slds=slds-truncate slds-assistive-text" title="Actions">Split Parent</div>
+                                            <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                                <span class="slds-truncate" title="Name">Split Parent</span>
                                             </div>
                                         </th>
                                         <th class="tblTH" scope="col" >
@@ -484,20 +493,28 @@
                                                     <ui:outputCurrency value="{!expense.Amount_after_Reductions__c}"/>
                                                 </div>
                                             </td>
+                                            <th scope="row">
+                                                <div class="slds-truncate" title="Name">
+                                                    <a href="{!v.recordUrlBase+ expense.Vendor__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!expense.Vendor__r.Name}</a>
+                                                </div>
+                                            </th>
                                             <td role="gridcell">
                                                 <div class="slds-truncate" title="Amount">{!expense.litify_pm__ExpenseType2__r.Name}</div>
                                             </td>
                                             <td role="gridcell">
                                                 <div class="slds-truncate" title="Amount">{!expense.Expense_Category__c}</div>
                                             </td>
+                                            <td>
+                                                <div class="slds-truncate" title="Payment Status">{!expense.litify_pm__Status__c}</div>
+                                            </td>
+                                            <th scope="row">
+                                                <div class="slds-truncate" title="Name">
+                                                    <a href="{!v.recordUrlBase+ expense.Split_Parent__c + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!expense.Split_Parent__r.Name}</a>
+                                                </div>
+                                            </th>
                                             <td role="gridcell">
-                                                <div class="slds-truncate" title="Amount">
-                                                 <aura:if isTrue="{!expense.Void__c}">
-                                                    True
-                                                    <aura:set attribute="else">
-                                                        False
-                                                    </aura:set>
-                                                </aura:if>
+                                                <div class="slds-truncate" title="Void">
+                                                    <ui:outputCheckbox value="{!expense.Void__c}"/>
                                                 </div>
                                             </td> 
                                             
@@ -506,13 +523,147 @@
                                 </tbody>
                             </table>
                         </aura:if>
-                        
-                        
-                       </div>
-                    
+                        <br/><br/>
+                        <!-- Expenses on other Resolutions -->
+                        <div class="slds-page-header">
+                            <div class="slds-page-header__row">
+                                <div class="slds-page-header__col-title">
+                                    <div class="slds-media">
+                                        <div class="slds-media__figure">
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <div class="slds-page-header__name">
+                                                <div class="slds-page-header__name-title">
+                                                    <h1>
+                                                        <span class="slds-page-header__title slds-truncate">Expenses not on other Resolutions</span>
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <table aria-multiselectable="true" class="slds-table slds-table_bordered slds-table_fixed-layout slds-table_resizable-cols" role="grid">
+                                <thead>
+                                <tr class="slds-line-height_reset" style="height: 35px;">
+                                    <th class="slds-text-align_right " scope="col" style="width:30px; padding-right:5px">
+                                        <div class="slds-checkbox">
+                                            <input type="checkbox" name="chk" id="selectUnbilledAll" onchange="{!c.handleAllUnBilledSelect}" disabled="{!v.disableInputOther}"/>
+                                            <label class="slds-checkbox__label" for="selectUnbilledAll">
+                                                <span class="slds-checkbox_faux"></span>
+                                            </label>
+                                        </div>
+
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Expense Id</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Expense Id</span>
+                                        </div>
+                                    </th>
+
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Date</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Date</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Amount</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Amount</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Vendor Name</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Vendor Name</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Expense Type</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Expense Type</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Category</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Category</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col">
+                                        <div class="slds=slds-truncate slds-assistive-text" title="Actions">Resolution</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Resolution</span>
+                                        </div>
+                                    </th>
+                                    <th class="tblTH" scope="col" >
+                                        <div class="slds-truncate slds-assistive-text" title="Actions">Void</div>
+                                        <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
+                                            <span class="slds-truncate" title="Name">Void</span>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <aura:iteration items="{!v.resolutionWrapper.expensesOnOtherResolutions}" var="expense">
+                                    <tr aria-selected="false" class="slds-hint-parent">
+
+                                        <td class="slds-text-align_right" role="gridcell">
+                                            <div class="slds-checkbox">
+                                                <lightning:input type="checkbox"  value="{!expense.Id}" onchange="{!c.handleUnBilledSelect}" disabled="{!v.disableInputOther}"/>
+                                            </div>
+                                        </td>
+                                        <th scope="row">
+                                            <div class="slds-truncate" title="Name">
+                                                <a href="{!v.recordUrlBase+ expense.Id + v.recordUrlBaseEnd}" tabindex="0" target="_blank">{!expense.Name}</a>
+                                            </div>
+                                        </th>
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Date">
+                                                <ui:outputDate value="{!expense.litify_pm__Date__c}" format="MM/dd/YYYY"/>
+                                            </div>
+                                        </td>
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Amount" >
+                                                <ui:outputCurrency value="{!expense.Amount_after_Reductions__c}"/>
+                                            </div>
+                                        </td>
+                                        <th scope="row">
+                                            <div class="slds-truncate" title="Name">
+                                                <a
+                                                        href="{!v.recordUrlBase+ expense.Vendor__c + v.recordUrlBaseEnd}"
+                                                        tabindex="0"
+                                                        target="_blank">{!expense.Vendor__r.Name}
+                                                </a>
+                                            </div>
+                                        </th>
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Amount">{!expense.litify_pm__ExpenseType2__r.Name}</div>
+                                        </td>
+                                        <td role="gridcell">
+                                            <div class="slds-truncate" title="Amount">{!expense.Expense_Category__c}</div>
+                                        </td>
+                                        <th scope="row">
+                                            <div class="slds-truncate" title="Name">
+                                                <a
+                                                        href="{!v.recordUrlBase+ expense.Resolution__c + v.recordUrlBaseEnd}"
+                                                        tabindex="0"
+                                                        target="_blank">{!expense.Resolution__r.Name}
+                                                </a>
+                                            </div>
+                                        </th>
+                                        <td role="gridcell"><div class="slds-truncate" title="Void">
+                                                <ui:outputCheckbox value="{!expense.Void__c}"/></div>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                
-                
             </div>
         </div>
     </aura:if>

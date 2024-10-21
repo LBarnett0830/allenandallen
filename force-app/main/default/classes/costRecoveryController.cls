@@ -6,6 +6,10 @@ Description : costRecoveryController for Cost recovery Screen in Resolution
 Updated by : 4Converge/Dave Williams
 Date       : 10/5/2024
 Description: Revisions for using Balance_Due__c on Damages instead of managed field Amount_Due__c
+
+Updated by: CloudQnect/Lamar Barnett
+Date      : 10/21/2024
+Description: Add additional params to SOQL query for listBilledPrebilled and listUnbilled. Added expenseOnOtherResolutions regarding Jira Ticket #LLXM-5
 */
 public without sharing class costRecoveryController {
     @AuraEnabled
@@ -15,42 +19,117 @@ public without sharing class costRecoveryController {
         try{
             
             string matterId='';
-            List<litify_pm__Resolution__c> listResolution =[select id,name,Status__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Matter__r.litify_pm__Display_Name__c,Firm_Distribution__c,litify_pm__Total_Damages__c,Third_Party_Distributions__c,Client_Distribution__c,
-                                                            Total_Liens__c, litify_pm__Settlement_Verdict_Amount__c,litify_pm__Total_Expenses__c ,Contingency_Fee__c ,Voided_Hard_Costs__c,Voided_Soft_Costs__c , Fees_Written_Off__c
-                                                            from litify_pm__Resolution__c where id=:resolutionId];
+            List<litify_pm__Resolution__c> listResolution =[
+                    select
+                            id,name, Status__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Matter__r.litify_pm__Display_Name__c,Firm_Distribution__c,litify_pm__Total_Damages__c,Third_Party_Distributions__c,Client_Distribution__c, Total_Liens__c, litify_pm__Settlement_Verdict_Amount__c,litify_pm__Total_Expenses__c ,Contingency_Fee__c ,Voided_Hard_Costs__c,Voided_Soft_Costs__c , Fees_Written_Off__c
+                    from litify_pm__Resolution__c
+                    where id=:resolutionId];
             if(listResolution.size()>0){
                 
                 matterId = listResolution[0].litify_pm__Matter__c;
                 //consider as Billed/Pre-Billed
-                List<litify_pm__Expense__c> listBilledPrebilled = [select id,name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c, Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c,litify_pm__ExpenseType2__r.Name ,Void__c,Resolution__r.Name
-                    from litify_pm__Expense__c  where litify_pm__Matter__c=:matterId and (Billing_Status__c='Pre-Billed' OR Billing_Status__c='Billed' )  and Resolution__c= :resolutionId   order by name];
+                List<litify_pm__Expense__c> listBilledPrebilled = [
+                        SELECT
+                                Id,Name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c, Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c,litify_pm__ExpenseType2__r.Name ,Void__c,Resolution__r.Name, Vendor__c, Vendor__r.Name, Split_Parent__c, Split_Parent__r.Name
+                        FROM
+                                litify_pm__Expense__c
+                        WHERE
+                                litify_pm__Matter__c=:matterId
+                                AND
+                                (Billing_Status__c='Pre-Billed' OR Billing_Status__c='Billed' )
+                                AND
+                                Resolution__c= :resolutionId
+                        ORDER BY
+                                Name
+                ];
 
-                List<litify_pm__Expense__c> listRecovered = [select id,name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c, Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c,litify_pm__ExpenseType2__r.Name ,Void__c,Resolution__r.Name
-                    from litify_pm__Expense__c  where litify_pm__Matter__c=:matterId and (Billing_Status__c='Pre-Billed' OR Billing_Status__c='Billed' )  and Resolution__c!= :resolutionId   order by name];
+                //Why is this here?
+                List<litify_pm__Expense__c> listRecovered = [
+                        SELECT
+                                Id,Name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c, Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c,litify_pm__ExpenseType2__r.Name ,Void__c,Resolution__r.Name,Vendor__c, Vendor__r.Name, litify_pm__Status__c
+                        FROM litify_pm__Expense__c
+                        WHERE
+                                litify_pm__Matter__c=:matterId
+                                AND (Billing_Status__c='Pre-Billed' OR Billing_Status__c='Billed' )
+                                AND Resolution__c!= :resolutionId
+                        ORDER BY
+                                name
+                ];
 
-                List<litify_pm__Expense__c> listUnbilled = [select id,name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c,Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c,litify_pm__ExpenseType2__r.Name,Void__c,Resolution__r.Name
-                    from litify_pm__Expense__c where litify_pm__Matter__c=:matterId  and (Billing_Status__c='Unbilled' OR Billing_Status__c='') AND (Stage__c='Approved' OR Stage__c='N/A' OR Stage__c='N/A-SoftCost' OR Stage__c='N/A-File')   order by name];
+                //LLXM-5 Start
+                List<litify_pm__Expense__c> expenseOnOtherResolutions = new List<litify_pm__Expense__c>();
+                try{
+                    expenseOnOtherResolutions = [
+                            SELECT
+                                    Id,
+                                    Name,
+                                    litify_pm__Date__c,
+                                    Amount_after_Reductions__c,
+                                    Expense_Category__c,
+                                    litify_pm__Status__c,
+                                    Void__c,
+                                    Resolution__c,
+                                    Resolution__r.Name,
+                                    Vendor__c,
+                                    Vendor__r.Name,
+                                    litify_pm__ExpenseType2__c,
+                                    litify_pm__ExpenseType2__r.Name
+                            FROM
+                                    litify_pm__Expense__c
+                            WHERE
+                                    Resolution__c !=: resolutionId AND Resolution__c != NULL AND litify_pm__Matter__c =: matterId
+                    ];
+                }catch (Exception ex){
+                    System.debug('Error Querying Expenses on Other Resolutions');
+                    System.debug(LoggingLevel.ERROR, ex.getMessage());
+                    System.debug(LoggingLevel.ERROR, ex.getStackTraceString());
+                }
+                //LLXM-5 Start
+
+                List<litify_pm__Expense__c> listUnbilled = [
+                        select
+                                id,name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c,Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c,litify_pm__ExpenseType2__r.Name,Void__c,Resolution__r.Name, Vendor__r.Name, Vendor__c, litify_pm__Status__c, Split_Parent__c, Split_Parent__r.Name
+                        from litify_pm__Expense__c
+                        where
+                                litify_pm__Matter__c=:matterId
+                                AND (Billing_Status__c='Unbilled' OR Billing_Status__c='')
+                                AND (Stage__c='Approved' OR Stage__c='N/A' OR Stage__c='N/A-SoftCost' OR Stage__c='N/A-File')
+                        order by
+                                name];
                 
-                List<litify_pm__Expense__c> listBilled = [select id,name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c,Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c ,litify_pm__ExpenseType2__r.Name,Void__c,Resolution__r.Name
-                    from litify_pm__Expense__c where litify_pm__Matter__c=:matterId and Billing_Status__c='Billed'   and Resolution__c= :resolutionId   order by name];
+                List<litify_pm__Expense__c> listBilled = [
+                        select
+                                id,name,litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c,Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c ,litify_pm__ExpenseType2__r.Name,Void__c,Resolution__r.Name
+                        from litify_pm__Expense__c
+                        where
+                                litify_pm__Matter__c=:matterId
+                                and Billing_Status__c='Billed'
+                                and Resolution__c= :resolutionId
+                        order by
+                                name];
                 
                 //If need, we can remove below multiple aggregations>> get two lists(one from filter by Resolution and other filter by Matter) then loop each and based on the if conditions 
                 //can calculate below total amounts, but it'll cause performance issues since we can have hundreds of expenses for a given matter
-                AggregateResult ARDamage = [select sum(Balance_Due__c)totalAmount from litify_pm__Damage__c where Resolution__c=:resolutionId];
+                AggregateResult ARDamage = [
+                        select
+                                sum(Balance_Due__c)totalAmount
+                        from litify_pm__Damage__c
+                        where Resolution__c=:resolutionId
+                ][0];
                 
-                AggregateResult ARBilledPreBilled = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where Resolution__c=:resolutionId and (Billing_Status__c='Pre-Billed' OR Billing_Status__c='Billed' ) ];
+                AggregateResult ARBilledPreBilled = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where Resolution__c=:resolutionId and (Billing_Status__c='Pre-Billed' OR Billing_Status__c='Billed' ) ][0];
                 
-                AggregateResult ARBilled = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where Resolution__c=:resolutionId and Billing_Status__c='Billed' ];
+                AggregateResult ARBilled = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where Resolution__c=:resolutionId and Billing_Status__c='Billed' ][0];
                 
-                AggregateResult ARVoidBilledPreBilledCount = [select count(Amount_after_Reductions__c)total from litify_pm__Expense__c where Resolution__c=:resolutionId and (Billing_Status__c='Billed' or Billing_Status__c='Pre-Billed')   and Void__c=true ];
+                AggregateResult ARVoidBilledPreBilledCount = [select count(Amount_after_Reductions__c)total from litify_pm__Expense__c where Resolution__c=:resolutionId and (Billing_Status__c='Billed' or Billing_Status__c='Pre-Billed')   and Void__c=true ][0];
                 
-                AggregateResult ARVoidUnBilled = [select count(Amount_after_Reductions__c)total from litify_pm__Expense__c where litify_pm__Matter__c=:matterId and Billing_Status__c='Unbilled'  and Void__c=true ];
+                AggregateResult ARVoidUnBilled = [select count(Amount_after_Reductions__c)total from litify_pm__Expense__c where litify_pm__Matter__c=:matterId and Billing_Status__c='Unbilled'  and Void__c=true ][0];
                 
-                AggregateResult ARVoided = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where litify_pm__Matter__c=:matterId and  Void__c=true AND (Stage__c='Approved' OR Stage__c='N/A' OR Stage__c='N/A-SoftCost' OR Stage__c='N/A-File')];
+                AggregateResult ARVoided = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where litify_pm__Matter__c=:matterId and  Void__c=true AND (Stage__c='Approved' OR Stage__c='N/A' OR Stage__c='N/A-SoftCost' OR Stage__c='N/A-File')][0];
                 
-                AggregateResult ARVoidBilledPreBilled = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where Resolution__c=:resolutionId and (Billing_Status__c='Billed' or Billing_Status__c='Pre-Billed')   and Void__c=true ];
+                AggregateResult ARVoidBilledPreBilled = [select sum(Amount_after_Reductions__c)totalAmount from litify_pm__Expense__c where Resolution__c=:resolutionId and (Billing_Status__c='Billed' or Billing_Status__c='Pre-Billed')   and Void__c=true ][0];
                 
-                AggregateResult ARUnapproved = [select count(id)total from litify_pm__Expense__c where litify_pm__Matter__c=:matterId  and (Stage__c='In-Process' or Stage__c='Pending Approval')];
+                AggregateResult ARUnapproved = [select count(id)total from litify_pm__Expense__c where litify_pm__Matter__c=:matterId  and (Stage__c='In-Process' or Stage__c='Pending Approval')][0];
                 
                 resolutionExpensesWrapper objWrapper = new resolutionExpensesWrapper();//(listUnbilled,listBilledPrebilled);
                 objWrapper.unbilledExpenses = listUnbilled;
@@ -58,6 +137,7 @@ public without sharing class costRecoveryController {
                 /* objWrapper.onOtherResolution = listRecovered; */
                 objWrapper.billedAndPreBilledExpenses = listBilledPrebilled;
                 objWrapper.emptyExpenses = new  List<litify_pm__Expense__c>();
+                objWrapper.expensesOnOtherResolutions = expenseOnOtherResolutions;////LLXM-5
                 
                 if(listBilled.size()>0){
                     objWrapper.billedExpenses =listBilled;
@@ -337,5 +417,24 @@ public without sharing class costRecoveryController {
         }
         catch(Exception ex){}
     }
+
+    /*
+    private static String getExpensesSelectString(){
+        return new String('SELECT Id, litify_pm__Date__c,litify_pm__Matter__c,litify_pm__Matter__r.Name,litify_pm__Amount__c,Amount_after_Reductions__c, Expense_Category__c,Billing_Status__c,Resolution__c,litify_pm__ExpenseType2__c,litify_pm__ExpenseType2__r.Name ,Void__c,Resolution__r.Name, Vendor__c, Vendor__r.Name ');
+    }
+
+    private static String getExpenseFromString(String query){
+        return new String(query + ' FROM litify_pm__Expense__c');
+    }
+
+    private static String getExpenseWhereString(String query, String matterId){
+        return new String(query + ' WHERE litify_pm__Matter__c =: matterId AND (Billing_Status__c =\'Pre-Billed\' OR Billing_Status__c = \'Billed\')' );
+    }
+
+    private static String getOrderBy(String query){
+        return new String(query + ' ORDER BY Name');
+    }
+
+     */
     
 }
