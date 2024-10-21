@@ -15,7 +15,7 @@ public class resolutionDamagesAndLiensControllerTest {
         ObjAccount.Name = 'Test Account For Project';
         ObjAccount.litify_pm__Last_Name__c ='test name';
         ObjAccount.RecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByName().get('Litify Individual').getRecordTypeId();
-        ObjAccount.AcctSeed__Accounting_Active__c = True;
+        ObjAccount.AcctSeed__Accounting_Active__c = true;
         ObjAccount.AcctSeed__Accounting_Type__c = 'Customer and Vendor';
         ObjAccount.Matter_Vendor__c =true;
         insert ObjAccount;
@@ -37,7 +37,7 @@ public class resolutionDamagesAndLiensControllerTest {
         dep.Director__c = userList[0].id;
         Insert dep;
 
-        list<AcctSeed__GL_Account__c>listGL = new list<AcctSeed__GL_Account__c>();
+        list<AcctSeed__GL_Account__c>listGL = new list<AcctSeed__GL_Account__c>();//G2G
         AcctSeed__GL_Account__c objACCGL = new AcctSeed__GL_Account__c(
             Name = '1201-Client Costs Advanced',
             AcctSeed__Active__c = true,
@@ -315,7 +315,7 @@ from Firm_Ledger_COS_Fee_Revenue_GL_Account__c];
             objAccountingPeriod.Name = objAccountingPeriod.AcctSeed__Start_Date__c.year() + '-' + (string.valueOf(objAccountingPeriod.AcctSeed__Start_Date__c.month()).length() == 1 ? '0' : '') + objAccountingPeriod.AcctSeed__Start_Date__c.month();
             objAccountingPeriod.AcctSeed__Status__c='Open';
             lstAccountingPeriod.add(objAccountingPeriod);
-    }
+        }
         insert lstAccountingPeriod;
 
         litify_pm__Resolution__c objResolution = new litify_pm__Resolution__c(

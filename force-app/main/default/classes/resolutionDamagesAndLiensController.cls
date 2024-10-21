@@ -37,9 +37,15 @@ public class resolutionDamagesAndLiensController {
                         Damage_Verification_Completion_Time__c,litify_pm__Type__c,Party_Name__c,Escrow__c
                     from litify_pm__Damage__c where Resolution__c=:resolutionId];
                 
-                List<litify_pm__Damage__c>listResUsedDamages = [select id,name,litify_pm__Provider__r.litify_pm__Party__c,litify_pm__Provider__r.litify_pm__Party__r.Name,Balance_Due__c,Due_Date__c,
-                        Damage_Verification_Completion_Time__c,litify_pm__Type__c,Party_Name__c,Escrow__c, Resolution__r.Name, Resolution__c
-                    from litify_pm__Damage__c where Resolution__c!=:resolutionId and Resolution__c!=null and litify_pm__Matter__c=:listResolution[0].litify_pm__Matter__c];
+                List<litify_pm__Damage__c>listResUsedDamages = [
+                        select
+                                id,name,litify_pm__Provider__r.litify_pm__Party__c,litify_pm__Provider__r.litify_pm__Party__r.Name,Balance_Due__c,Due_Date__c, Damage_Verification_Completion_Time__c,litify_pm__Type__c,Party_Name__c,Escrow__c, Resolution__r.Name, Resolution__c
+                        from
+                                litify_pm__Damage__c
+                        where
+                                Resolution__c!=:resolutionId
+                                and Resolution__c!=null
+                                and litify_pm__Matter__c=:listResolution[0].litify_pm__Matter__c];
                 
                 List<litify_pm__Lien__c>listAvailableLienes = [select id,name,Payee_Party__c,Payee_Party__r.Name,litify_pm__lit_Payee__r.litify_pm__Party__c,litify_pm__lit_Payee__r.litify_pm__Party__r.Name,
                     litify_pm__lit_Amount_Due__c,Date_Issued__c,Escrow__c
@@ -82,7 +88,7 @@ public class resolutionDamagesAndLiensController {
                 objWrapper.availableLienes = listAvailableLienes;
                 objWrapper.selectedLienes = listSelectedLienes;
                 objWrapper.usedDamages = listResUsedDamages;// Add used damages to declaration in wrapper
-                objWrapper.usedLienes = listUsedLiens;
+                objWrapper.usedLienes = listResUsedLiens;
                 objWrapper.emptyDamages = new List<litify_pm__Damage__c> ();
                 objWrapper.emptyLienes = new List<litify_pm__Lien__c> ();
                 
