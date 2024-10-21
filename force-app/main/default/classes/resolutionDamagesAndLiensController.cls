@@ -50,7 +50,7 @@ public class resolutionDamagesAndLiensController {
                     from litify_pm__Lien__c where Resolution__c=:resolutionId];
 
                 //Query to find Used Liens
-                List<litify_pm__Lien__c> listUsedLiens = [
+                List<litify_pm__Lien__c> listResUsedLiens = [
                     SELECT 
                         Id, 
                         name, 
@@ -70,8 +70,7 @@ public class resolutionDamagesAndLiensController {
                         AND 
                     Resolution__c != null 
                         AND 
-                        litify_pm__lit_Matter__c =: listResolution[0].litify_pm__Matter__c LIMIT 5000];
-
+                        litify_pm__lit_Matter__c =: listResolution[0].litify_pm__Matter__c LIMIT 50];
                 
                 
                 resolutionDamagesAndLiensWrapper objWrapper = new resolutionDamagesAndLiensWrapper();//(listAvailableDamages,listSelectedDamages);
